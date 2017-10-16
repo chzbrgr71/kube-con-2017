@@ -23,7 +23,8 @@ type Config struct {
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	// gather values
 	var gitSHA = os.Getenv("GIT_SHA")
-	var appVersion = os.Getenv("APP_VERSION")
+	//var appVersion = os.Getenv("APP_VERSION")
+	var appVersion = "v1"
 	var imageBuildDate = os.Getenv("IMAGE_BUILD_DATE")
 	var kubeNodeName = os.Getenv("KUBE_NODE_NAME")
 	var kubePodName = os.Getenv("KUBE_POD_NAME")

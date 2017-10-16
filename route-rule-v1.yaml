@@ -1,0 +1,11 @@
+apiVersion: config.istio.io/v1alpha2
+kind: RouteRule
+metadata:
+  name: api-v1
+spec:
+  destination:
+    name: smackapi
+  precedence: 1
+  route:
+  - labels:
+      version: v1

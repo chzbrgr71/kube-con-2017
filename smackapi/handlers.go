@@ -25,7 +25,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func returnConfig(w http.ResponseWriter, r *http.Request) {
-	var appVersion = "1.1.0"
+	var appVersion = "v2"
 	var backColor = "Green"
 	var imageBuildDate = os.Getenv("IMAGE_BUILD_DATE")
 	var kubeNodeName = os.Getenv("KUBE_NODE_NAME")

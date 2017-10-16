@@ -1,9 +1,9 @@
 kind: Deployment
 apiVersion: apps/v1beta1
 metadata:
-  name: smackweb-deploy
+  name: smackweb
 spec:
-  replicas: 2
+  replicas: 1
   template: 
     metadata:
       labels:
@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: smackweb
-        image: chzbrgr71/smackweb
+        image: chzbrgr71/smackweb:v1
         env:
         - name: API_SERVICE
           value: "smackapi.default.svc.cluster.local"
@@ -36,7 +36,7 @@ spec:
 kind: Deployment
 apiVersion: apps/v1beta1
 metadata:
-  name: smackapi-deploy
+  name: smackapi-v1
 spec:
   replicas: 3
   template: 
@@ -47,7 +47,38 @@ spec:
     spec:
       containers:
       - name: smackapi
-        image: chzbrgr71/smackapi
+        image: chzbrgr71/smackapi:v1
+        env:
+        - name: KUBE_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: KUBE_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: KUBE_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        ports:
+        - containerPort: 8081
+---
+kind: Deployment
+apiVersion: apps/v1beta1
+metadata:
+  name: smackapi-v2
+spec:
+  replicas: 3
+  template: 
+    metadata:
+      labels:
+        app: smackapi
+        version: v2
+    spec:
+      containers:
+      - name: smackapi
+        image: chzbrgr71/smackapi:v2
         env:
         - name: KUBE_NODE_NAME
           valueFrom:
