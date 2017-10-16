@@ -1,0 +1,12 @@
+# Default values for chart
+
+serviceType: LoadBalancer
+servicePort: 8080
+containerPort: 8080
+component: "smackweb"
+replicas: 4
+image: "chzbrgr71/smackweb"
+imageTag: "latest"
+imagePullPolicy: "Always"
+apiService: "smackapi-svc.default.svc.cluster.local"
+apiPort: 8081
