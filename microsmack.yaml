@@ -8,6 +8,7 @@ spec:
     metadata:
       labels:
         app: smackweb
+        version: v1
     spec:
       containers:
       - name: smackweb
@@ -42,6 +43,7 @@ spec:
     metadata:
       labels:
         app: smackapi
+        version: v1
     spec:
       containers:
       - name: smackapi
