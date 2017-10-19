@@ -3,3 +3,4 @@ secret.yaml
 smackweb/debug
 smackweb/smackweb
 smackapi/smackapi
+jenkins-values.yaml
