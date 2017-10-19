@@ -61,5 +61,34 @@ volumes:[
                     sh "cd smackweb && go test -v"
                 }
             }
+
+            stage ('BUILD: containerize and publish TO repository') {
+                println "DEBUG: build and push containers stage starting"
+                container('docker') {
+                    // Login to ACR
+                    withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: acrJenkinsCreds,
+                                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        println "DEBUG: docker login ${acrServer} -u ${env.USERNAME} -p ${env.PASSWORD}"
+                        sh "docker login ${acrServer} -u ${env.USERNAME} -p ${env.PASSWORD}"
+                    }
+
+                    // build containers
+                    sh "cd smackapi && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg VERSION=${appVersion} --build-arg VCS_REF=${env.GIT_SHA} -t ${apiImage} ."                    
+                    sh "cd smackweb && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg VERSION=${appVersion} --build-arg VCS_REF=${env.GIT_SHA} -t ${webImage} ."
+                    sh "docker images"
+                    
+                    // push images to repo (ACR)
+                    def apiACRImage = acrServer + "/" + apiImage
+                    env.ENV_API_IMAGE = "${apiACRImage}"
+                    sh "docker tag ${apiImage} ${apiACRImage}"
+                    sh "docker push ${apiACRImage}"
+                    println "DEBUG: pushed image ${apiACRImage}"
+                    def webACRImage = acrServer + "/" + webImage
+                    env.ENV_WEB_IMAGE = "${webACRImage}"
+                    sh "docker tag ${webImage} ${webACRImage}"
+                    sh "docker push ${webACRImage}"
+                    println "DEBUG: pushed image ${webACRImage}"
+                }
+            }            
         }
     }

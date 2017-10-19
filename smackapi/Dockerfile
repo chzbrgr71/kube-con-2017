@@ -19,9 +19,7 @@ ENV APP_VERSION $VERSION
 ENV IMAGE_BUILD_DATE $BUILD_DATE
 
 WORKDIR /app
-ADD ./*.go /app/
-
-RUN cd /app && go get github.com/gorilla/mux && go build -o smackapi
+ADD ./smackapi /app/
 
 ENTRYPOINT /app/smackapi
-EXPOSE 8080
+EXPOSE 8081
