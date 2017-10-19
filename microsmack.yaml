@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: smackweb
-        image: chzbrgr71/smackweb:v1
+        image: briarprivate.azurecr.io/chzbrgr71/smackweb:master-fde3012
         env:
         - name: API_SERVICE
           value: "smackapi.default.svc.cluster.local"
@@ -32,6 +32,8 @@ spec:
               fieldPath: status.podIP
         ports:
         - containerPort: 8080
+      imagePullSecrets:
+      - name: acrregistrykey
 ---
 kind: Deployment
 apiVersion: apps/v1beta1
@@ -47,7 +49,7 @@ spec:
     spec:
       containers:
       - name: smackapi
-        image: chzbrgr71/smackapi:v1
+        image: briarprivate.azurecr.io/chzbrgr71/smackapi:master-fde3012
         env:
         - name: KUBE_NODE_NAME
           valueFrom:
@@ -63,6 +65,8 @@ spec:
               fieldPath: status.podIP
         ports:
         - containerPort: 8081
+      imagePullSecrets:
+      - name: acrregistrykey
 ---
 kind: Deployment
 apiVersion: apps/v1beta1
@@ -78,7 +82,7 @@ spec:
     spec:
       containers:
       - name: smackapi
-        image: chzbrgr71/smackapi:v2
+        image: briarprivate.azurecr.io/chzbrgr71/smackapi:master-fde3012
         env:
         - name: KUBE_NODE_NAME
           valueFrom:
@@ -94,6 +98,8 @@ spec:
               fieldPath: status.podIP
         ports:
         - containerPort: 8081
+      imagePullSecrets:
+      - name: acrregistrykey
 ---
 kind: Service
 apiVersion: v1

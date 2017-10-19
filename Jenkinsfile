@@ -55,9 +55,9 @@ volumes:[
             stage ('BUILD: code compile and test') {
                 container('golang') {
                     sh "go get github.com/gorilla/mux"
-                    sh "cd smackapi && go build"
+                    sh "cd smackapi && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackapi"
                     sh "cd smackapi && go test -v"
-                    sh "cd smackweb && go build"
+                    sh "cd smackweb && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackweb"
                     sh "cd smackweb && go test -v"
                 }
             }
@@ -76,7 +76,7 @@ volumes:[
                     sh "cd smackapi && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg VERSION=${appVersion} --build-arg VCS_REF=${env.GIT_SHA} -t ${apiImage} ."                    
                     sh "cd smackweb && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg VERSION=${appVersion} --build-arg VCS_REF=${env.GIT_SHA} -t ${webImage} ."
                     sh "docker images"
-                    
+
                     // push images to repo (ACR)
                     def apiACRImage = acrServer + "/" + apiImage
                     env.ENV_API_IMAGE = "${apiACRImage}"
