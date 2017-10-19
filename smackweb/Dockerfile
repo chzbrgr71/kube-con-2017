@@ -1,4 +1,4 @@
-FROM golang
+FROM alpine
 MAINTAINER Brian Redmond <brianisrunning@gmail.com>
 
 ARG VCS_REF
