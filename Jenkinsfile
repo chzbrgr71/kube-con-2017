@@ -58,12 +58,11 @@ volumes:[
 
             if (env.BRANCH_NAME =~ "PR-*" ) {
                 stage ('build container and push to ACR') {
-                    println "DEBUG: build and push containers stage starting"
                     container('docker') {
                         // Login to ACR
                         withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: acrJenkinsCreds,
                                         usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                            println "DEBUG: docker login ${acrServer} -u ${env.USERNAME} -p ${env.PASSWORD}"
+                            //println "DEBUG: docker login ${acrServer} -u ${env.USERNAME} -p ${env.PASSWORD}"
                             sh "docker login ${acrServer} -u ${env.USERNAME} -p ${env.PASSWORD}"
                         }
 
@@ -74,10 +73,9 @@ volumes:[
                         def apiACRImage = acrServer + "/" + apiImage
                         sh "docker tag ${apiImage} ${apiACRImage}"
                         sh "docker push ${apiACRImage}"
-                        println "DEBUG: pushed image ${apiACRImage}"
-
                         sh "docker images" // for debug purposes
                     }
+                    println "DEBUG: pushed image ${apiACRImage}"
                 }
 
                 stage ('deploy to kubernetes') {

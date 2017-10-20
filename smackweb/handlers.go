@@ -23,12 +23,17 @@ type Config struct {
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	// gather values
 	var gitSHA = os.Getenv("GIT_SHA")
-	//var appVersion = os.Getenv("APP_VERSION")
-	var appVersion = "v1"
 	var imageBuildDate = os.Getenv("IMAGE_BUILD_DATE")
 	var kubeNodeName = os.Getenv("KUBE_NODE_NAME")
 	var kubePodName = os.Getenv("KUBE_POD_NAME")
 	var kubePodIP = os.Getenv("KUBE_POD_IP")
+
+	var htmlHeader = "<!DOCTYPE html><html><head><style>table, th, td {border: 1px solid black;}th, td {padding: 15px;}</style></head><font color=black><h1>Microsmack Homepage</h1><body style=background-color:white>"
+	fmt.Fprintf(w, htmlHeader)
+	fmt.Fprintf(w, "<p>Git: %s<br>Image build date: %s<br>Kubernetes node: %s<br>Kubernetes pod name: %s<br>Kubernetes pod IP: %s</p><br>", gitSHA, imageBuildDate, kubeNodeName, kubePodName, kubePodIP)
+
+	// loop through the api 9 times to build table
+	fmt.Fprintf(w, "<table><tr><td>API1</td><td>API2</td><td>API3</td></tr><tr><td>API4</td><td>API5</td><td>API6</td></tr><tr><td>API7</td><td>API8</td><td>API9</td></tr></table>")
 
 	// call api for backend config values
 	var apiService = os.Getenv("API_SERVICE")
@@ -43,7 +48,6 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	response, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
-		//log.Print(err)
 	}
 	defer response.Body.Close()
 	responseData, err := ioutil.ReadAll(response.Body)
@@ -54,15 +58,11 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	var configObject Config
 	json.Unmarshal(responseData, &configObject)
 	backColor := configObject.BackColor
-	apiVersion := configObject.AppVersion
-	apiBuildDate := configObject.BuildDate
-	apiKubeNodeName := configObject.KubeNodeName
-	apiKubePodName := configObject.KubePodName
-	apiKubePodIP := configObject.KubePodIP
+	log.Printf(backColor)
+	//apiVersion := configObject.AppVersion
 
-	// render page
-	html := fmt.Sprintf("<!DOCTYPE html><html><font color=white><h1>Microsmack Homepage</h1><body style=background-color:%s><p>Git: %s<br>App version: %s<br>Image build date: %s</p><p>Kubernetes node: %s<br>Kubernetes pod name: %s<br>Kubernetes pod IP: %s</p><p>------------</p><p>Backend API (Version %s):<br>API build date: %s<br>API kubernetes node: %s<br>API kubernetes pod: %s<br>API kubernetes IP: %s</p></body></html>", backColor, gitSHA, appVersion, imageBuildDate, kubeNodeName, kubePodName, kubePodIP, apiVersion, apiBuildDate, apiKubeNodeName, apiKubePodName, apiKubePodIP)
-	fmt.Fprintf(w, html)
+	// render footer
+	fmt.Fprintf(w, "</body></html>")
 }
 
 func testHandler(resp http.ResponseWriter, req *http.Request) {
