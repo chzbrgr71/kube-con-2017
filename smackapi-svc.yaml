@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: smackapi
+spec:
+  selector:
+    app: smackapi
+  type: ClusterIP  
+  ports:
+  - name: http
+    port: 8081
+    targetPort: 8081
