@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: smackweb
-        image: briarprivate.azurecr.io/chzbrgr71/smackweb:master-fde3012
+        image: briarprivate.azurecr.io/chzbrgr71/smackweb:master-274e094
         env:
         - name: API_SERVICE
           value: "smackapi.default.svc.cluster.local"
@@ -49,7 +49,7 @@ spec:
     spec:
       containers:
       - name: smackapi
-        image: briarprivate.azurecr.io/chzbrgr71/smackapi:master-fde3012
+        image: briarprivate.azurecr.io/chzbrgr71/smackapi:master-274e094
         env:
         - name: KUBE_NODE_NAME
           valueFrom:
@@ -82,7 +82,7 @@ spec:
     spec:
       containers:
       - name: smackapi
-        image: briarprivate.azurecr.io/chzbrgr71/smackapi:master-fde3012
+        image: briarprivate.azurecr.io/chzbrgr71/smackapi:master-274e094
         env:
         - name: KUBE_NODE_NAME
           valueFrom:

@@ -3,7 +3,7 @@ MAINTAINER Brian Redmond <brianisrunning@gmail.com>
 
 ARG VCS_REF
 ARG BUILD_DATE
-ARG VERSION
+ARG IMAGE_TAG_REF
 
 # Metadata
 LABEL org.label-schema.vcs-ref=$VCS_REF \
@@ -11,12 +11,11 @@ LABEL org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.description="Simple golang web api for use in Kubernetes demos" \
       org.label-schema.vcs-url="https://github.com/chzbrgr71/microsmack" \
       org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.version=$VERSION \
       org.label-schema.docker.dockerfile="/smackapi/Dockerfile"
 
 ENV GIT_SHA $VCS_REF
-ENV APP_VERSION $VERSION
 ENV IMAGE_BUILD_DATE $BUILD_DATE
+ENV IMAGE_TAG_REF $IMAGE_TAG
 
 WORKDIR /app
 ADD ./smackapi /app/

@@ -21,6 +21,7 @@ spec:
         release: {{.Release.Name | quote }}
         chart: "{{.Chart.Name}}-{{.Chart.Version}}"
         component: "{{.Release.Name}}-{{.Values.component}}"
+        version: "{{.Values.versionLabel}}"
     spec:
       imagePullSecrets:
         - name: acrregistrykey

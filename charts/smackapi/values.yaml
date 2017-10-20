@@ -4,7 +4,8 @@ serviceType: ClusterIP
 servicePort: 8081
 containerPort: 8081
 component: "smackapi"
-replicas: 2
+replicas: 3
 image: "chzbrgr71/smackapi"
 imageTag: "latest"
 imagePullPolicy: "Always"
+versionLabel: "v1"

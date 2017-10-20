@@ -5,6 +5,7 @@ podTemplate(label: 'jenkins-pipeline', containers: [
     containerTemplate(name: 'jnlp', image: 'jenkinsci/jnlp-slave:2.62', args: '${computer.jnlpmac} ${computer.name}', workingDir: '/home/jenkins', resourceRequestCpu: '200m', resourceLimitCpu: '200m', resourceRequestMemory: '256Mi', resourceLimitMemory: '256Mi'),
     containerTemplate(name: 'golang', image: 'golang:1.7.5', command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'docker', image: 'docker:17.06.0', command: 'cat', ttyEnabled: true),
+    containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v2.6.2', command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.7.8', command: 'cat', ttyEnabled: true)
 ],
 volumes:[
@@ -52,17 +53,17 @@ volumes:[
             println "DEBUG: apiImage ==> " + apiImage
             println "DEBUG: webImage ==> " + webImage
 
-            stage ('BUILD: code compile and test') {
+            stage ('code compile and test') {
                 container('golang') {
                     sh "go get github.com/gorilla/mux"
                     sh "cd smackapi && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackapi"
                     sh "cd smackapi && go test -v"
-                    sh "cd smackweb && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackweb"
-                    sh "cd smackweb && go test -v"
+                    //sh "cd smackweb && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackweb"
+                    //sh "cd smackweb && go test -v"
                 }
             }
 
-            stage ('BUILD: containerize and publish TO repository') {
+            stage ('build container and push to ACR') {
                 println "DEBUG: build and push containers stage starting"
                 container('docker') {
                     // Login to ACR
@@ -73,22 +74,40 @@ volumes:[
                     }
 
                     // build containers
-                    sh "cd smackapi && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg VERSION=${appVersion} --build-arg VCS_REF=${env.GIT_SHA} -t ${apiImage} ."                    
-                    sh "cd smackweb && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg VERSION=${appVersion} --build-arg VCS_REF=${env.GIT_SHA} -t ${webImage} ."
-                    sh "docker images"
+                    sh "cd smackapi && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${env.GIT_SHA} -t ${apiImage} ."                    
+                    //sh "cd smackweb && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg VERSION=${appVersion} --build-arg VCS_REF=${env.GIT_SHA} -t ${webImage} ."
 
                     // push images to repo (ACR)
                     def apiACRImage = acrServer + "/" + apiImage
-                    env.ENV_API_IMAGE = "${apiACRImage}"
                     sh "docker tag ${apiImage} ${apiACRImage}"
                     sh "docker push ${apiACRImage}"
                     println "DEBUG: pushed image ${apiACRImage}"
-                    def webACRImage = acrServer + "/" + webImage
-                    env.ENV_WEB_IMAGE = "${webACRImage}"
-                    sh "docker tag ${webImage} ${webACRImage}"
-                    sh "docker push ${webACRImage}"
-                    println "DEBUG: pushed image ${webACRImage}"
+                    
+                    //def webACRImage = acrServer + "/" + webImage
+                    //sh "docker tag ${webImage} ${webACRImage}"
+                    //sh "docker push ${webACRImage}"
+                    //println "DEBUG: pushed image ${webACRImage}"
+                    
+                    sh "docker images"
                 }
-            }            
+            }  
+
+            if (env.BRANCH_NAME =~ "PR-*" ) {
+                stage ('deploy to kubernetes') {
+                    container('helm') {
+                        println "deploy PR image and add istio rules"
+                        //sh "helm upgrade --install ${args.name} ${args.chart_dir} --set imageTag=${args.version_tag},replicas=${args.replicas},cpu=${args.cpu},memory=${args.memory},ingress.hostname=${args.hostname}"
+                    }
+                }
+            }
+
+            if (env.BRANCH_NAME == 'master') {
+                stage ('deploy to kubernetes') {
+                    container('helm') {
+                        println "update release with new image and adjust istio rules"
+                        //sh "helm upgrade --install ${args.name} ${args.chart_dir} --set imageTag=${args.version_tag},replicas=${args.replicas},cpu=${args.cpu},memory=${args.memory},ingress.hostname=${args.hostname}"
+                    }
+                }
+            }         
         }
     }
