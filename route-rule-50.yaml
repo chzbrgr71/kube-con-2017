@@ -4,12 +4,12 @@ metadata:
   name: api-50
 spec:
   destination:
-    name: smackapi
+    name: smackapi-svc
   precedence: 1
   route:
   - labels:
-      version: v1
+      version: master-56da71f
     weight: 50
   - labels:
-      version: v2
+      version: PR-2-90ed2a0
     weight: 50
