@@ -21,7 +21,6 @@ volumes:[
             // configuration parameters and variables for pipeline
             def pwd = pwd()
             def repo = "chzbrgr71"
-            def appMajorVersion = "v1"
             def acrServer = "briarprivate.azurecr.io"
             def acrJenkinsCreds = "acr_creds" //this is set in Jenkins global credentials
             sh 'git rev-parse HEAD > git_commit_id.txt'
@@ -37,7 +36,6 @@ volumes:[
             def date = new Date()
             sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")
             def buildDate = sdf.format(date)
-            def appVersion = "${appMajorVersion}.${env.BUILD_NUMBER}"
             def apiImage = "${repo}/smackapi:${imageTag}"
 
             // write out variables for debug purposes
@@ -46,11 +44,9 @@ volumes:[
             println "DEBUG: env.BRANCH_NAME ==> ${env.BRANCH_NAME}"
             println "DEBUG: env.JOB_NAME ==> ${env.JOB_NAME}"
             println "DEBUG: env.BUILD_NUMBER ==> ${env.BUILD_NUMBER}"
-            println "DEBUG: appVersion ==> " + appVersion
             println "DEBUG: buildDate ==> " + buildDate
             println "DEBUG: imageTag ==> " + imageTag
             println "DEBUG: apiImage ==> " + apiImage
-            println "DEBUG: webImage ==> " + webImage
 
             stage ('code compile and test') {
                 container('golang') {
