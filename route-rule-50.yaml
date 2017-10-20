@@ -4,8 +4,8 @@ metadata:
   name: api-50
 spec:
   destination:
-    name: smackapi-svc
-  precedence: 1
+    name: smackapi
+  precedence: 15
   route:
   - labels:
       version: master-56da71f
