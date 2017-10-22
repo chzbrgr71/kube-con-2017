@@ -24,16 +24,16 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	// gather values
 	var gitSHA = os.Getenv("GIT_SHA")
 	var imageBuildDate = os.Getenv("IMAGE_BUILD_DATE")
-	var kubeNodeName = os.Getenv("KUBE_NODE_NAME")
+	//var kubeNodeName = os.Getenv("KUBE_NODE_NAME")
 	var kubePodName = os.Getenv("KUBE_POD_NAME")
 	var kubePodIP = os.Getenv("KUBE_POD_IP")
 
-	var htmlHeader = "<!DOCTYPE html><html><head><style>table, th, td {border: 1px solid black;}th, td {padding: 15px;}</style></head><font color=black><h1>Microsmack Homepage</h1><body style=background-color:white>"
+	var htmlHeader = "<!DOCTYPE html><html><head><style>table, th, td {border: 1px solid black;font-family: 'Courier New';font-size: 40px;color: white}th, td {padding: 20px;}</style></head><font color=black><h1>Microsmack Homepage</h1><body style=background-color:white>"
 	fmt.Fprintf(w, htmlHeader)
-	fmt.Fprintf(w, "<p>Git: %s<br>Image build date: %s<br>Kubernetes node: %s<br>Kubernetes pod name: %s<br>Kubernetes pod IP: %s</p><br>", gitSHA, imageBuildDate, kubeNodeName, kubePodName, kubePodIP)
+	fmt.Fprintf(w, "<p>Web Page Repo Git: %s<br>Web image build date: %s<br>Running on: (%s / %s)</p><br>", gitSHA, imageBuildDate, kubePodName, kubePodIP)
 
 	// loop through the api 9 times to build table
-	fmt.Fprintf(w, "<table><tr><td>API1</td><td>API2</td><td>API3</td></tr><tr><td>API4</td><td>API5</td><td>API6</td></tr><tr><td>API7</td><td>API8</td><td>API9</td></tr></table>")
+	fmt.Fprintf(w, "<font size=5><table><tr><td bgcolor=red>API1</td><td bgcolor=red>API2</td><td bgcolor=red>API3</td></tr><tr><td bgcolor=red>API4</td><td bgcolor=blue>API5</td><td bgcolor=red>API6</td></tr><tr><td bgcolor=red>API7</td><td bgcolor=red>API8</td><td bgcolor=red>API9</td></tr></table>")
 
 	// call api for backend config values
 	var apiService = os.Getenv("API_SERVICE")
