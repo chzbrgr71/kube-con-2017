@@ -111,11 +111,11 @@ volumes:[
                 }
                 
                 stage ('deploy to kubernetes') {
-                    container('helm') {
+                    container('kubectl') {
                         println "DEBUG: initiliazing helm client"
-                        sh "helm init"
-                        //sh "kubectl get pod,svc -n default"
-                        sh "helm version"
+                        //sh "helm init"
+                        sh "kubectl get pod,svc -n default"
+                        //sh "helm version"
                         
                         //println "update release with new image and adjust istio rules"
                         //sh "helm upgrade --install smackapi ./charts/smackapi --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=${imageTag},versionLabel=${imageTag},istio.precedence=50"
