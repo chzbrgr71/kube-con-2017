@@ -26,14 +26,14 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 
 func returnConfig(w http.ResponseWriter, r *http.Request) {
 	var appVersion = os.Getenv("IMAGE_TAG")
-	var backColor = "Blue"
+	var backColor = "Cyan"
 	var imageBuildDate = os.Getenv("IMAGE_BUILD_DATE")
 	var kubeNodeName = os.Getenv("KUBE_NODE_NAME")
 	var kubePodName = os.Getenv("KUBE_POD_NAME")
 	var kubePodIP = os.Getenv("KUBE_POD_IP")
 
 	if len(appVersion) == 0 {
-		appVersion = "master-test23a"
+		appVersion = "master-testing"
 	}
 	configs := Config{Key: "10", BackColor: backColor, AppVersion: appVersion, BuildDate: imageBuildDate, KubeNodeName: kubeNodeName, KubePodName: kubePodName, KubePodIP: kubePodIP}
 
