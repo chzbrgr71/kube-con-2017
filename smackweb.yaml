@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: smackweb
-        image: briarprivate.azurecr.io/chzbrgr71/smackweb:master-274e094
+        image: briarprivate.azurecr.io/chzbrgr71/smackweb:master-9f49e71
         env:
         - name: API_SERVICE
           value: "smackapi.default.svc.cluster.local"

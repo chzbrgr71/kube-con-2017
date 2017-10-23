@@ -8,4 +8,4 @@ spec:
   precedence: 5
   route:
   - labels:
-      version: master-56da71f
+      version: master-9f49e71
