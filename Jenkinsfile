@@ -112,8 +112,13 @@ volumes:[
                 
                 stage ('deploy to kubernetes') {
                     container('helm') {
+                        sh "kubectl get pod,svc,routerule"
+                        println "DEBUG: initiliazing helm client"
+                        sh "helm init"
+                        println "DEBUG: checking client/server version"
+                        sh "helm version"
+                        
                         println "update release with new image and adjust istio rules"
-                        //sh "helm upgrade --install ${args.name} ${args.chart_dir} --set imageTag=${args.version_tag},replicas=${args.replicas},cpu=${args.cpu},memory=${args.memory},ingress.hostname=${args.hostname}"
                         sh "helm upgrade --install smackapi ./charts/smackapi --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=${imageTag},versionLabel=${imageTag},istio.precedence=50"
                     }
                 }
