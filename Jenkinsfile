@@ -112,7 +112,6 @@ volumes:[
                 
                 stage ('deploy to kubernetes') {
                     container('helm') {
-                        sh "kubectl get pod,svc,routerule"
                         println "DEBUG: initiliazing helm client"
                         sh "helm init"
                         println "DEBUG: checking client/server version"
