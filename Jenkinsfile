@@ -114,7 +114,7 @@ volumes:[
                     container('kubectl') {
                         println "DEBUG: initiliazing helm client"
                         //sh "helm init"
-                        sh "kubectl get pod,svc"
+                        sh "kubectl get pod,svc -n default"
                         //sh "helm version"
                         
                         //println "update release with new image and adjust istio rules"
