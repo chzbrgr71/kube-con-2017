@@ -21,7 +21,6 @@ volumes:[
             // configuration parameters and variables for pipeline
             def pwd = pwd()
             def repo = "chzbrgr71"
-            def appMajorVersion = "v1"
             def acrServer = "briarprivate.azurecr.io"
             def acrJenkinsCreds = "acr_creds" //this is set in Jenkins global credentials
             sh 'git rev-parse HEAD > git_commit_id.txt'
@@ -37,9 +36,7 @@ volumes:[
             def date = new Date()
             sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")
             def buildDate = sdf.format(date)
-            def appVersion = "${appMajorVersion}.${env.BUILD_NUMBER}"
             def apiImage = "${repo}/smackapi:${imageTag}"
-            def webImage = "${repo}/smackweb:${imageTag}"
 
             // write out variables for debug purposes
             println "DEBUG: env.GIT_COMMIT_ID ==> ${env.GIT_COMMIT_ID}"
@@ -47,52 +44,40 @@ volumes:[
             println "DEBUG: env.BRANCH_NAME ==> ${env.BRANCH_NAME}"
             println "DEBUG: env.JOB_NAME ==> ${env.JOB_NAME}"
             println "DEBUG: env.BUILD_NUMBER ==> ${env.BUILD_NUMBER}"
-            println "DEBUG: appVersion ==> " + appVersion
             println "DEBUG: buildDate ==> " + buildDate
             println "DEBUG: imageTag ==> " + imageTag
             println "DEBUG: apiImage ==> " + apiImage
-            println "DEBUG: webImage ==> " + webImage
 
             stage ('code compile and test') {
                 container('golang') {
                     sh "go get github.com/gorilla/mux"
                     sh "cd smackapi && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackapi"
                     sh "cd smackapi && go test -v"
-                    //sh "cd smackweb && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackweb"
-                    //sh "cd smackweb && go test -v"
                 }
             }
 
-            stage ('build container and push to ACR') {
-                println "DEBUG: build and push containers stage starting"
-                container('docker') {
-                    // Login to ACR
-                    withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: acrJenkinsCreds,
-                                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                        println "DEBUG: docker login ${acrServer} -u ${env.USERNAME} -p ${env.PASSWORD}"
-                        sh "docker login ${acrServer} -u ${env.USERNAME} -p ${env.PASSWORD}"
-                    }
-
-                    // build containers
-                    sh "cd smackapi && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${env.GIT_SHA} -t ${apiImage} ."                    
-                    //sh "cd smackweb && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg VERSION=${appVersion} --build-arg VCS_REF=${env.GIT_SHA} -t ${webImage} ."
-
-                    // push images to repo (ACR)
-                    def apiACRImage = acrServer + "/" + apiImage
-                    sh "docker tag ${apiImage} ${apiACRImage}"
-                    sh "docker push ${apiACRImage}"
-                    println "DEBUG: pushed image ${apiACRImage}"
-                    
-                    //def webACRImage = acrServer + "/" + webImage
-                    //sh "docker tag ${webImage} ${webACRImage}"
-                    //sh "docker push ${webACRImage}"
-                    //println "DEBUG: pushed image ${webACRImage}"
-                    
-                    sh "docker images"
-                }
-            }  
-
             if (env.BRANCH_NAME =~ "PR-*" ) {
+                stage ('build container and push to ACR') {
+                    container('docker') {
+                        // Login to ACR
+                        withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: acrJenkinsCreds,
+                                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                            //println "DEBUG: docker login ${acrServer} -u ${env.USERNAME} -p ${env.PASSWORD}"
+                            sh "docker login ${acrServer} -u ${env.USERNAME} -p ${env.PASSWORD}"
+                        }
+
+                        // build containers
+                        sh "cd smackapi && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${env.GIT_SHA} -t ${apiImage} ."                    
+
+                        // push images to repo (ACR)
+                        def apiACRImage = acrServer + "/" + apiImage
+                        sh "docker tag ${apiImage} ${apiACRImage}"
+                        sh "docker push ${apiACRImage}"
+                        sh "docker images" // for debug purposes
+                    }
+                    println "DEBUG: pushed image ${apiACRImage}"
+                }
+
                 stage ('deploy to kubernetes') {
                     container('helm') {
                         println "deploy PR image and add istio rules"
@@ -102,6 +87,29 @@ volumes:[
             }
 
             if (env.BRANCH_NAME == 'master') {
+                stage ('build container and push to ACR') {
+                    println "DEBUG: build and push containers stage starting"
+                    container('docker') {
+                        // Login to ACR
+                        withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: acrJenkinsCreds,
+                                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                            println "DEBUG: docker login ${acrServer} -u ${env.USERNAME} -p ${env.PASSWORD}"
+                            sh "docker login ${acrServer} -u ${env.USERNAME} -p ${env.PASSWORD}"
+                        }
+
+                        // build containers
+                        sh "cd smackapi && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${env.GIT_SHA} -t ${apiImage} ."                    
+
+                        // push images to repo (ACR)
+                        def apiACRImage = acrServer + "/" + apiImage
+                        sh "docker tag ${apiImage} ${apiACRImage}"
+                        sh "docker push ${apiACRImage}"
+                        println "DEBUG: pushed image ${apiACRImage}"
+
+                        sh "docker images" // for debug purposes
+                    }
+                }
+                
                 stage ('deploy to kubernetes') {
                     container('helm') {
                         println "update release with new image and adjust istio rules"

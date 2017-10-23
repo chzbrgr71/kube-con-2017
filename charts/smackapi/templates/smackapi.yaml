@@ -22,6 +22,7 @@ spec:
         chart: "{{.Chart.Name}}-{{.Chart.Version}}"
         component: "{{.Release.Name}}-{{.Values.component}}"
         version: "{{.Values.versionLabel}}"
+        app: "{{.Values.component}}"
     spec:
       imagePullSecrets:
         - name: acrregistrykey
@@ -45,29 +46,3 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: status.podIP
-          livenessProbe:
-            httpGet:
-              path: /test
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /test
-              port: http
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: "{{.Release.Name}}-svc"
-  labels:
-    heritage: {{.Release.Service | quote }}
-    release: {{.Release.Name | quote }}
-    chart: "{{.Chart.Name}}-{{.Chart.Version}}"
-    component: "{{.Release.Name}}-{{.Values.component}}"
-spec:
-  selector:
-    component: "{{.Release.Name}}-{{.Values.component}}"
-  type: {{ default "ClusterIP" .Values.serviceType | quote }}  
-  ports:
-  - name: http
-    port: {{.Values.servicePort}}
-    targetPort: {{.Values.containerPort}}

@@ -32,6 +32,9 @@ func returnConfig(w http.ResponseWriter, r *http.Request) {
 	var kubePodName = os.Getenv("KUBE_POD_NAME")
 	var kubePodIP = os.Getenv("KUBE_POD_IP")
 
+	if len(appVersion) == 0 {
+		appVersion = "master-test23a"
+	}
 	configs := Config{Key: "10", BackColor: backColor, AppVersion: appVersion, BuildDate: imageBuildDate, KubeNodeName: kubeNodeName, KubePodName: kubePodName, KubePodIP: kubePodIP}
 
 	w.Header().Set("Content-Type", "application/json")

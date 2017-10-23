@@ -23,13 +23,44 @@ type Config struct {
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	// gather values
 	var gitSHA = os.Getenv("GIT_SHA")
-	//var appVersion = os.Getenv("APP_VERSION")
-	var appVersion = "v1"
+	if len(gitSHA) == 0 {
+		gitSHA = "not set"
+	}
 	var imageBuildDate = os.Getenv("IMAGE_BUILD_DATE")
-	var kubeNodeName = os.Getenv("KUBE_NODE_NAME")
+	if len(imageBuildDate) == 0 {
+		imageBuildDate = "1/1/2017 16:29:27"
+	}
 	var kubePodName = os.Getenv("KUBE_POD_NAME")
+	if len(kubePodName) == 0 {
+		kubePodName = "smackweb-1659604661-zh6rp"
+	}
 	var kubePodIP = os.Getenv("KUBE_POD_IP")
+	if len(kubePodIP) == 0 {
+		kubePodIP = "192.168.1.100"
+	}
 
+	var htmlHeader = "<!DOCTYPE html><html><head><style>table, th, td {border: 1px solid black;font-family: 'Courier New';font-size: 28px;color: white}th, td {padding: 20px;}</style></head><font color=black><h1>Microsmack Homepage</h1><body style=background-color:white>"
+	fmt.Fprintf(w, htmlHeader)
+	fmt.Fprintf(w, "<p>Web Page Repo Git: %s<br>Web image build date: %s<br>Running on: (%s / %s)</p><br><table>", gitSHA, imageBuildDate, kubePodName, kubePodIP)
+
+	// loop through the api 9 times to build table
+	i := 1
+	for i <= 5 {
+		fmt.Fprintf(w, "<tr>")
+		j := 1
+		for j <= 5 {
+			fmt.Fprintf(w, createTableCell())
+			j = j + 1
+		}
+		fmt.Fprintf(w, "</tr>")
+		i = i + 1
+	}
+
+	// render footer
+	fmt.Fprintf(w, "</table></body></html>")
+}
+
+func createTableCell() string {
 	// call api for backend config values
 	var apiService = os.Getenv("API_SERVICE")
 	if len(apiService) == 0 {
@@ -43,7 +74,6 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	response, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
-		//log.Print(err)
 	}
 	defer response.Body.Close()
 	responseData, err := ioutil.ReadAll(response.Body)
@@ -55,14 +85,8 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(responseData, &configObject)
 	backColor := configObject.BackColor
 	apiVersion := configObject.AppVersion
-	apiBuildDate := configObject.BuildDate
-	apiKubeNodeName := configObject.KubeNodeName
-	apiKubePodName := configObject.KubePodName
-	apiKubePodIP := configObject.KubePodIP
 
-	// render page
-	html := fmt.Sprintf("<!DOCTYPE html><html><font color=white><h1>Microsmack Homepage</h1><body style=background-color:%s><p>Git: %s<br>App version: %s<br>Image build date: %s</p><p>Kubernetes node: %s<br>Kubernetes pod name: %s<br>Kubernetes pod IP: %s</p><p>------------</p><p>Backend API (Version %s):<br>API build date: %s<br>API kubernetes node: %s<br>API kubernetes pod: %s<br>API kubernetes IP: %s</p></body></html>", backColor, gitSHA, appVersion, imageBuildDate, kubeNodeName, kubePodName, kubePodIP, apiVersion, apiBuildDate, apiKubeNodeName, apiKubePodName, apiKubePodIP)
-	fmt.Fprintf(w, html)
+	return "<td bgcolor=" + backColor + " align=center>" + apiVersion + "</td>"
 }
 
 func testHandler(resp http.ResponseWriter, req *http.Request) {

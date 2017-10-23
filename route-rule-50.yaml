@@ -5,11 +5,11 @@ metadata:
 spec:
   destination:
     name: smackapi
-  precedence: 1
+  precedence: 15
   route:
   - labels:
-      version: v1
+      version: master-56da71f
     weight: 50
   - labels:
-      version: v2
+      version: PR-2-90ed2a0
     weight: 50

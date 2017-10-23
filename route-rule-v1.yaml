@@ -5,7 +5,7 @@ metadata:
 spec:
   destination:
     name: smackapi
-  precedence: 1
+  precedence: 5
   route:
   - labels:
-      version: v1
+      version: master-9f49e71
