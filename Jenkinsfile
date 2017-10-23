@@ -73,9 +73,10 @@ volumes:[
                         def apiACRImage = acrServer + "/" + apiImage
                         sh "docker tag ${apiImage} ${apiACRImage}"
                         sh "docker push ${apiACRImage}"
+                        println "DEBUG: pushed image ${apiACRImage}"
+                        
                         sh "docker images" // for debug purposes
                     }
-                    println "DEBUG: pushed image ${apiACRImage}"
                 }
 
                 stage ('deploy to kubernetes') {
