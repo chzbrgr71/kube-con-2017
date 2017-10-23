@@ -8,8 +8,8 @@ spec:
   precedence: 15
   route:
   - labels:
-      version: master-56da71f
+      version: master-9f49e71
     weight: 50
   - labels:
-      version: PR-2-90ed2a0
+      version: PR-4-c60dced
     weight: 50
