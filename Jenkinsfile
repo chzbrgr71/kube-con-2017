@@ -86,7 +86,8 @@ volumes:[
                         //sh "helm version"
                         
                         println "deploy PR image and add istio rules"
-                        sh "helm upgrade --install smackapi-test ./charts/smackapi --namespace default --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=${imageTag},versionLabel=${imageTag},istio.routeName=smackapi-routes-2,istio.precedence=5,istio.smackapiMasterWeight=50,istio.smackapiPRTag=${imageTag},istio.smackapiPRWeight=50"
+                        sh "helm upgrade --install smackapi-pr ./charts/smackapi --namespace default --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=${imageTag},versionLabel=${imageTag},istio.routeName=smackapi-pr,istio.precedence=100,istio.smackapiMasterTag=prod,istio.smackapiMasterWeight=50,istio.smackapiPRTag=${imageTag},istio.smackapiPRWeight=50"
+                        
                     }
                 }
             }
@@ -122,7 +123,7 @@ volumes:[
                         //sh "helm version"
                         
                         println "update release with new image and adjust istio rules"
-                        sh "helm upgrade --install smackapi ./charts/smackapi --namespace default --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=${imageTag},versionLabel=${imageTag},istio.precedence=50,istio.smackapiMasterTag=${imageTag}"
+                        sh "helm upgrade --install smackapi ./charts/smackapi --namespace default --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=${imageTag},versionLabel=prod,istio.routeName=smackapi-prod,istio.precedence=50,istio.smackapiMasterTag=prod,istio.smackapiMasterWeight=100,istio.smackapiPRTag=anything,istio.smackapiPRWeight=0"
                     }
                 }
             }         

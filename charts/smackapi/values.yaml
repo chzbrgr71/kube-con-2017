@@ -10,7 +10,7 @@ imageTag: "latest"
 imagePullPolicy: "Always"
 versionLabel: "v1"
 istio:
-  routeName: smackapi-routes
+  routeName: smackapi-route
   precedence: 10
   smackapiMasterTag: "latest"
   smackapiMasterWeight: 100
