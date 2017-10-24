@@ -12,7 +12,7 @@ versionLabel: "v1"
 istio:
   routeName: smackapi-routes
   precedence: 10
-  smackapiMasterTag: "master-56da71f"
+  smackapiMasterTag: "latest"
   smackapiMasterWeight: 100
   smackapiPRTag: "PR-2-90ed2a0"
   smackapiPRWeight: 0
