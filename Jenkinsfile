@@ -124,6 +124,11 @@ volumes:[
                         
                         println "update release with new image and adjust istio rules"
                         sh "helm upgrade --install smackapi ./charts/smackapi --namespace default --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=${imageTag},versionLabel=prod,istio.routeName=smackapi-prod,istio.precedence=50,istio.smackapiMasterTag=prod,istio.smackapiMasterWeight=100,istio.smackapiPRTag=anything,istio.smackapiPRWeight=0"
+                        try {
+                            sh "helm delete --purge smackapi-pr"
+                        } catch (err) {
+                            echo "ignore if does not exist"
+                        }
                     }
                 }
             }         
