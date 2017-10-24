@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 )
 
 type Config struct {
@@ -26,7 +27,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 
 func returnConfig(w http.ResponseWriter, r *http.Request) {
 	var appVersion = os.Getenv("IMAGE_TAG")
-	var backColor = "powderblue"
+	var backColor = "red"
 	var imageBuildDate = os.Getenv("IMAGE_BUILD_DATE")
 	var kubeNodeName = os.Getenv("KUBE_NODE_NAME")
 	var kubePodName = os.Getenv("KUBE_POD_NAME")
@@ -36,6 +37,11 @@ func returnConfig(w http.ResponseWriter, r *http.Request) {
 		appVersion = "master-testing"
 	}
 	configs := Config{Key: "10", BackColor: backColor, AppVersion: appVersion, BuildDate: imageBuildDate, KubeNodeName: kubeNodeName, KubePodName: kubePodName, KubePodIP: kubePodIP}
+
+	// insert simulated delay if color is red
+	if backColor == "red" {
+		time.Sleep(5000 * time.Millisecond)
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
