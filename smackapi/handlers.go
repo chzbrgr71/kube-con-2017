@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 	"time"
@@ -40,7 +41,8 @@ func returnConfig(w http.ResponseWriter, r *http.Request) {
 
 	// insert simulated delay if color is red
 	if backColor == "red" {
-		time.Sleep(500 * time.Millisecond)
+		r := random(50, 250)
+		time.Sleep(time.Duration(r) * time.Millisecond)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -49,6 +51,11 @@ func returnConfig(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(configs); err != nil {
 		panic(err)
 	}
+}
+
+func random(min, max int) int {
+	rand.Seed(time.Now().UTC().UnixNano())
+	return rand.Intn(max-min) + min
 }
 
 func testHandler(resp http.ResponseWriter, req *http.Request) {
