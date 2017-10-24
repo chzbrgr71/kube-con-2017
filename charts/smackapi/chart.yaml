@@ -1,7 +1,0 @@
-name: smackapi
-home: https://github.com/chzbrgr71/kube-con-2017
-version: 1.0
-description: Simple web app for demonstrating Kubernetes
-maintainers: 
-  - name: chzbrgr71
-    email: brianisrunning@gmail.com
