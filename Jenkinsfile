@@ -87,7 +87,6 @@ volumes:[
                         
                         println "deploy PR image and add istio rules"
                         sh "helm upgrade --install smackapi-pr ./charts/smackapi --namespace default --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=${imageTag},versionLabel=${imageTag},istio.routeName=smackapi-pr,istio.precedence=100,istio.smackapiMasterTag=prod,istio.smackapiMasterWeight=50,istio.smackapiPRTag=${imageTag},istio.smackapiPRWeight=50"
-                        
                     }
                 }
             }
