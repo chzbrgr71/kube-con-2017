@@ -2,12 +2,6 @@
 
 In the process of building these demos based on Azure, Kubernetes, Istio, and Jenkins.
 
-kubectl create rolebinding jenkins-sa-admin \
+kubectl create clusterrolebinding jenkins-addon-cluster-admin \
   --clusterrole=cluster-admin \
-  --serviceaccount=jenkins:default \
-  --namespace=jenkins
-
-kubectl create rolebinding jenkins-sa-admin2 \
-  --clusterrole=cluster-admin \
-  --serviceaccount=jenkins:jenkins-jenkins \
-  --namespace=jenkins
+  --serviceaccount=jenkins:jenkins-jenkins

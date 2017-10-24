@@ -110,12 +110,18 @@ volumes:[
                     }
                 }
                 
-                stage ('deploy to kubernetes') {
+                stage ('test access to kubernetes') {
                     container('kubectl') {
-                        println "DEBUG: initiliazing k8s,helm client"
-                        //sh "helm init"
-                        sh "kubectl get pod,svc -n default"
-                        //sh "helm version"
+                        println "testing kubernetes access with jenkins sa"
+                        sh "kubectl get pod,svc --all-namespaces"
+                    }
+                }
+
+                stage ('deploy to kubernetes') {
+                    container('helm') {
+                        println "DEBUG: initiliazing helm"
+                        sh "helm init"
+                        sh "helm version"
                         
                         //println "update release with new image and adjust istio rules"
                         //sh "helm upgrade --install smackapi ./charts/smackapi --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=${imageTag},versionLabel=${imageTag},istio.precedence=50"
