@@ -117,7 +117,7 @@ volumes:[
                         sh "helm version"
                         
                         println "update release with new image and adjust istio rules"
-                        sh "helm upgrade --install smackapi ./charts/smackapi --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=${imageTag},versionLabel=${imageTag},istio.precedence=50,istio.smackapiMasterTag=${imageTag}"
+                        sh "helm upgrade --install smackapi ./charts/smackapi --namespace default --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=${imageTag},versionLabel=${imageTag},istio.precedence=50,istio.smackapiMasterTag=${imageTag}"
                     }
                 }
             }         
