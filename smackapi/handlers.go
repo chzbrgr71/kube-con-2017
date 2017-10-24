@@ -40,7 +40,7 @@ func returnConfig(w http.ResponseWriter, r *http.Request) {
 
 	// insert simulated delay if color is red
 	if backColor == "red" {
-		time.Sleep(5000 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
