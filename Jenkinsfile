@@ -1,7 +1,7 @@
 #!/usr/bin/groovy
 import java.text.SimpleDateFormat
 
-podTemplate(label: 'jenkins-pipeline', slaveConnectTimeout: 600, containers: [
+podTemplate(label: 'jenkins-pipeline', containers: [
     containerTemplate(name: 'jnlp', image: 'jenkinsci/jnlp-slave:2.62', args: '${computer.jnlpmac} ${computer.name}', workingDir: '/home/jenkins', resourceRequestCpu: '200m', resourceLimitCpu: '200m', resourceRequestMemory: '256Mi', resourceLimitMemory: '256Mi'),
     containerTemplate(name: 'golang', image: 'golang:1.7.5', command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'docker', image: 'docker:17.06.0', command: 'cat', ttyEnabled: true),
@@ -73,15 +73,20 @@ volumes:[
                         def apiACRImage = acrServer + "/" + apiImage
                         sh "docker tag ${apiImage} ${apiACRImage}"
                         sh "docker push ${apiACRImage}"
-                        sh "docker images" // for debug purposes
+                        println "DEBUG: pushed image ${apiACRImage}"
+
+                        //sh "docker images" // for debug purposes
                     }
-                    println "DEBUG: pushed image ${apiACRImage}"
                 }
 
-                stage ('deploy to kubernetes') {
+                stage ('deploy PR to k8s and test') {
                     container('helm') {
+                        println "DEBUG: initiliazing helm"
+                        sh "helm init"
+                        //sh "helm version"
+                        
                         println "deploy PR image and add istio rules"
-                        //sh "helm upgrade --install ${args.name} ${args.chart_dir} --set imageTag=${args.version_tag},replicas=${args.replicas},cpu=${args.cpu},memory=${args.memory},ingress.hostname=${args.hostname}"
+                        sh "helm upgrade --install smackapi-test ./charts/smackapi --namespace default --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=${imageTag},versionLabel=${imageTag},istio.smackapiMasterWeight=50,istio.smackapiPRTag=${imageTag},istio.smackapiPRWeight=50"
                     }
                 }
             }
@@ -106,15 +111,15 @@ volumes:[
                         sh "docker push ${apiACRImage}"
                         println "DEBUG: pushed image ${apiACRImage}"
 
-                        sh "docker images" // for debug purposes
+                        //sh "docker images" // for debug purposes
                     }
                 }
 
-                stage ('deploy to kubernetes') {
+                stage ('deploy to k8s') {
                     container('helm') {
                         println "DEBUG: initiliazing helm"
                         sh "helm init"
-                        sh "helm version"
+                        //sh "helm version"
                         
                         println "update release with new image and adjust istio rules"
                         sh "helm upgrade --install smackapi ./charts/smackapi --namespace default --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=${imageTag},versionLabel=${imageTag},istio.precedence=50,istio.smackapiMasterTag=${imageTag}"
