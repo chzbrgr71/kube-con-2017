@@ -55,13 +55,21 @@ kind: Deployment
 apiVersion: apps/v1beta1
 metadata:
   name: api-v1
+  labels:
+    component: api-v1
 spec:
   replicas: 3
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      component: api-v1
   template: 
     metadata:
       labels:
         app: api
         version: v1
+        component: api-v1
     spec:
       containers:
       - name: api
@@ -89,13 +97,21 @@ kind: Deployment
 apiVersion: apps/v1beta1
 metadata:
   name: api-v2
+  labels:
+    component: api-v2
 spec:
   replicas: 3
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      component: api-v2
   template: 
     metadata:
       labels:
         app: api
         version: v2
+        component: api-v2
     spec:
       containers:
       - name: api

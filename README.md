@@ -12,3 +12,5 @@ api.appName=api,\
 api.image=briarprivate.azurecr.io/chzbrgr71/smackapi,\
 api.imageTag=staging-a01cbc0,\
 api.versionLabel=faulttest
+
+helm upgrade --install smackapi-fault ./charts/smackapi --namespace default --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=staging-a01cbc0,versionLabel=staging-a01cbc0,istio.routeName=smackapi-fault,istio.precedence=100,istio.smackapiMasterTag=prod,istio.smackapiMasterWeight=0,istio.smackapiPRTag=staging-a01cbc0,istio.smackapiPRWeight=100
