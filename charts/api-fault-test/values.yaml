@@ -1,0 +1,19 @@
+# Default values for chart
+web:
+  appName: web
+  replicas: 1
+  image: "briarprivate.azurecr.io/chzbrgr71/smackweb"
+  imageTag: "master-c399f02"
+  imagePullPolicy: "Always"
+  versionLabel: "faulttest"
+  imagePullSecret: "acrregistrykey"
+  apiSvcName: "api.default.svc.cluster.local"
+
+api:
+  appName: api
+  replicas: 4
+  image: "briarprivate.azurecr.io/chzbrgr71/smackapi"
+  imageTag: "staging-a01cbc0"
+  imagePullPolicy: "Always"
+  versionLabel: "faulttest"
+  imagePullSecret: "acrregistrykey"

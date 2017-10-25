@@ -1,0 +1,51 @@
+kind: Deployment
+apiVersion: apps/v1beta1
+metadata:
+  name: "{{.Values.web.appName}}"
+spec:
+  replicas: {{ default 1 .Values.web.replicas }}
+  template: 
+    metadata:
+      labels:
+        app: "{{.Values.web.appName}}"
+        version: "{{.Values.web.versionLabel}}"
+    spec:
+      containers:
+      - name: "{{.Values.web.appName}}"
+        image: "{{.Values.web.image}}:{{.Values.web.imageTag}}"
+        env:
+        - name: API_SERVICE
+          value: "{{.Values.web.apiSvcName}}"
+        - name: API_PORT
+          value: "8081"
+        - name: KUBE_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: KUBE_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: KUBE_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        ports:
+        - containerPort: 8080
+      imagePullSecrets:
+      - name: "{{.Values.web.imagePullSecret}}"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: "{{.Values.web.appName}}"
+  labels:
+    app: "{{.Values.web.appName}}"
+spec:
+  selector:
+    app: "{{.Values.web.appName}}"
+  type: LoadBalancer  
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080

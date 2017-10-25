@@ -1,0 +1,19 @@
+apiVersion: config.istio.io/v1alpha2
+kind: RouteRule
+metadata:
+  name: api-fault-test
+  namespace: default
+spec:
+  destination:
+    name: api
+  match:
+    source:
+      labels:
+        version: faulttest
+  route:
+  - labels:
+    version: faulttest
+  httpFault:
+    delay:
+      percent: 100
+      fixedDelay: 5s

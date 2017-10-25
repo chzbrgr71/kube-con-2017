@@ -1,5 +1,5 @@
-name: smackweb
-home: https://github.com/chzbrgr71/microsmack
+name: smackapi-staging
+home: https://github.com/chzbrgr71/kube-con-2017
 version: 1.0
 description: Simple web app for demonstrating Kubernetes
 maintainers: 
