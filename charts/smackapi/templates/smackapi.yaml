@@ -1,48 +1,36 @@
+apiVersion: extensions/v1beta1
 kind: Deployment
-apiVersion: apps/v1beta1
 metadata:
-  name: "{{.Release.Name}}"
-  labels:
-    heritage: {{.Release.Service | quote }}
-    release: {{.Release.Name | quote }}
-    chart: "{{.Chart.Name}}-{{.Chart.Version}}"
-    component: "{{.Release.Name}}-{{.Values.component}}"
+  name: smackapi-v1
 spec:
-  replicas: {{ default 1 .Values.replicas }}
-  strategy:
-    type: RollingUpdate
-  selector:
-    matchLabels:
-      component: "{{.Release.Name}}-{{.Values.component}}"
-  template: 
+  replicas: 3
+  template:
     metadata:
       labels:
-        heritage: {{.Release.Service | quote }}
-        release: {{.Release.Name | quote }}
-        chart: "{{.Chart.Name}}-{{.Chart.Version}}"
-        component: "{{.Release.Name}}-{{.Values.component}}"
-        version: "{{.Values.versionLabel}}"
-        app: "{{.Values.component}}"
+        app: smackapi
+        version: v1
     spec:
-      imagePullSecrets:
-        - name: acrregistrykey
       containers:
-        - name: {{ template "fullname" . }}
-          image: "{{.Values.image}}:{{.Values.imageTag}}"
-          imagePullPolicy: "{{.Values.imagePullPolicy}}"
-          ports:
-          - name: http
-            containerPort: {{.Values.containerPort}}
-          env:
-          - name: KUBE_NODE_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: spec.nodeName
-          - name: KUBE_POD_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.name
-          - name: KUBE_POD_IP
-            valueFrom:
-              fieldRef:
-                fieldPath: status.podIP
+      - name: smackapi
+        image: briarprivate.azurecr.io/chzbrgr71/smackapi:master-bb02b3e
+        env:
+        - name: KUBE_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: KUBE_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: KUBE_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        resources:
+          requests:
+            cpu: "100m"
+        imagePullPolicy: IfNotPresent #Always
+        ports:
+        - containerPort: 8081
+      imagePullSecrets:
+      - name: acrregistrykey

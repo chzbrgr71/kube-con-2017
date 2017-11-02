@@ -9,10 +9,3 @@ image: "chzbrgr71/smackapi"
 imageTag: "latest"
 imagePullPolicy: "Always"
 versionLabel: "v1"
-istio:
-  routeName: smackapi-route
-  precedence: 10
-  smackapiMasterTag: "latest"
-  smackapiMasterWeight: 100
-  smackapiPRTag: "PR-2-90ed2a0"
-  smackapiPRWeight: 0

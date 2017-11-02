@@ -4,9 +4,7 @@ import java.text.SimpleDateFormat
 podTemplate(label: 'jenkins-pipeline', containers: [
     containerTemplate(name: 'jnlp', image: 'jenkinsci/jnlp-slave:2.62', args: '${computer.jnlpmac} ${computer.name}', workingDir: '/home/jenkins', resourceRequestCpu: '200m', resourceLimitCpu: '200m', resourceRequestMemory: '256Mi', resourceLimitMemory: '256Mi'),
     containerTemplate(name: 'golang', image: 'golang:1.7.5', command: 'cat', ttyEnabled: true),
-    containerTemplate(name: 'docker', image: 'docker:17.06.0', command: 'cat', ttyEnabled: true),
-    containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v2.6.1', command: 'cat', ttyEnabled: true),
-    containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.7.8', command: 'cat', ttyEnabled: true)
+    containerTemplate(name: 'docker', image: 'docker:17.06.0', command: 'cat', ttyEnabled: true)
 ],
 volumes:[
     hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
@@ -56,99 +54,23 @@ volumes:[
                 }
             }
             
-            if (env.BRANCH_NAME =~ "staging" ) {
-                stage ('build container and push to ACR') {
-                    container('docker') {
-                        // Login to ACR
-                        withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: acrJenkinsCreds,
-                                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                            sh "docker login ${acrServer} -u ${env.USERNAME} -p ${env.PASSWORD}"
-                        }
-                        // build containers
-                        sh "cd smackapi && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${env.GIT_SHA} -t ${apiImage} ."                    
-
-                        // push images to repo (ACR)
-                        def apiACRImage = acrServer + "/" + apiImage
-                        sh "docker tag ${apiImage} ${apiACRImage}"
-                        sh "docker push ${apiACRImage}"
-                        println "DEBUG: pushed image ${apiACRImage}"
+            stage ('build container and push to ACR') {
+                println "DEBUG: build and push containers stage starting"
+                container('docker') {
+                    // Login to ACR
+                    withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: acrJenkinsCreds,
+                                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh "docker login ${acrServer} -u ${env.USERNAME} -p ${env.PASSWORD}"
                     }
+                    // build containers
+                    sh "cd smackapi && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${env.GIT_SHA} -t ${apiImage} ."                    
+
+                    // push images to repo (ACR)
+                    def apiACRImage = acrServer + "/" + apiImage
+                    sh "docker tag ${apiImage} ${apiACRImage}"
+                    sh "docker push ${apiACRImage}"
+                    println "DEBUG: pushed image ${apiACRImage}"
                 }
-
-                stage ('spin up test and validate') {
-                    container('helm') {
-                        println "DEBUG: initiliazing helm"
-                        sh "helm init"
-
-                        println "DEBUG: deploy chart in staging namespace" 
-                    }
-                }
-            }
-
-            if (env.BRANCH_NAME =~ "PR-*" ) {
-                stage ('build container and push to ACR') {
-                    container('docker') {
-                        // Login to ACR
-                        withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: acrJenkinsCreds,
-                                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                            sh "docker login ${acrServer} -u ${env.USERNAME} -p ${env.PASSWORD}"
-                        }
-                        // build containers
-                        sh "cd smackapi && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${env.GIT_SHA} -t ${apiImage} ."                    
-
-                        // push images to repo (ACR)
-                        def apiACRImage = acrServer + "/" + apiImage
-                        sh "docker tag ${apiImage} ${apiACRImage}"
-                        sh "docker push ${apiACRImage}"
-                        println "DEBUG: pushed image ${apiACRImage}"
-                    }
-                }
-
-                stage ('deploy PR to k8s and test') {
-                    container('helm') {
-                        println "DEBUG: initiliazing helm"
-                        sh "helm init"
-                        
-                        println "deploy PR image and add istio rules"
-                        sh "helm upgrade --install smackapi-pr ./charts/smackapi --namespace default --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=${imageTag},versionLabel=${imageTag},istio.routeName=smackapi-pr,istio.precedence=100,istio.smackapiMasterTag=prod,istio.smackapiMasterWeight=50,istio.smackapiPRTag=${imageTag},istio.smackapiPRWeight=50"
-                    }
-                }
-            }
-
-            if (env.BRANCH_NAME == 'master') {
-                stage ('build container and push to ACR') {
-                    println "DEBUG: build and push containers stage starting"
-                    container('docker') {
-                        // Login to ACR
-                        withCredentials([[$class          : 'UsernamePasswordMultiBinding', credentialsId: acrJenkinsCreds,
-                                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                            sh "docker login ${acrServer} -u ${env.USERNAME} -p ${env.PASSWORD}"
-                        }
-                        // build containers
-                        sh "cd smackapi && docker build --build-arg BUILD_DATE='${buildDate}' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${env.GIT_SHA} -t ${apiImage} ."                    
-
-                        // push images to repo (ACR)
-                        def apiACRImage = acrServer + "/" + apiImage
-                        sh "docker tag ${apiImage} ${apiACRImage}"
-                        sh "docker push ${apiACRImage}"
-                        println "DEBUG: pushed image ${apiACRImage}"
-                    }
-                }
-
-                stage ('deploy to k8s') {
-                    container('helm') {
-                        println "DEBUG: initiliazing helm"
-                        sh "helm init"
-                        
-                        println "update release with new image and adjust istio rules"
-                        sh "helm upgrade --install smackapi ./charts/smackapi --namespace default --set image=briarprivate.azurecr.io/chzbrgr71/smackapi,imageTag=${imageTag},versionLabel=prod,istio.routeName=smackapi-prod,istio.precedence=50,istio.smackapiMasterTag=prod,istio.smackapiMasterWeight=100,istio.smackapiPRTag=anything,istio.smackapiPRWeight=0"
-                        try {
-                            sh "helm delete --purge smackapi-pr"
-                        } catch (err) {
-                            echo "ignore if does not exist"
-                        }
-                    }
-                }
-            }         
+            }    
         }
     }
