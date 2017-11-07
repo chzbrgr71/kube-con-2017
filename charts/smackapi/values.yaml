@@ -1,11 +1,6 @@
 # Default values for chart
 
-serviceType: ClusterIP
-servicePort: 8081
-containerPort: 8081
-component: "smackapi"
-replicas: 3
-image: "chzbrgr71/smackapi"
-imageTag: "latest"
-imagePullPolicy: "Always"
-versionLabel: "v1"
+api:
+  replicas: 3
+  image: "briarprivate.azurecr.io/chzbrgr71/smackapi"
+  imageTag: "master-62ddb4f"

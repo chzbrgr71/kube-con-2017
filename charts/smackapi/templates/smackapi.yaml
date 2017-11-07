@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: smackapi-v1
 spec:
-  replicas: 3
+  replicas: {{ default 1 .Values.api.replicas }}
   template:
     metadata:
       labels:
@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: smackapi
-        image: briarprivate.azurecr.io/chzbrgr71/smackapi:master-bb02b3e
+        image: "{{.Values.api.image}}:{{.Values.api.imageTag}}"
         env:
         - name: KUBE_NODE_NAME
           valueFrom:
