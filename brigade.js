@@ -13,7 +13,6 @@ events.on("push", function(e, project) {
     // Now we want it to run these commands in order:
     node.tasks = [
       "cd /src/",
-      "ls -la",
       "go get github.com/gorilla/mux",
       "cd smackapi && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackapi",
       "go test -v"
