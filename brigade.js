@@ -22,6 +22,9 @@ events.on("push", function(e, project) {
     var docker = new Job("job-runner-docker")
     docker.storage.enabled = false
     docker.image = "docker:17.06.0"
+    docker.privileged = true
+    // need something like....
+    // hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
 
     // setup variables
     var acrServer = "briarprivate.azurecr.io"
