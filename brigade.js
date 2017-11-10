@@ -10,8 +10,8 @@ events.on("push", function(e, project) {
     var apiImage = "chzbrgr71/smackapi"
     var imageTag = "btr123"
     var gitSHA = "212828"
-    var apiACRImage = "${acrServer}/${apiImage}:${imageTag}"
-    console.log("==> docker image for ACR is " + apiACRImage)
+    var apiACRImage = `${acrServer}/${apiImage}:${imageTag}`
+    console.log(`==> docker image for ACR is ${apiACRImage}`)
 
     // define job for golang work
     var golang = new Job("job-runner-golang")
