@@ -2,11 +2,12 @@ const { events, Job, Group } = require('brigadier')
 
 events.on("push", function(e, project) {
     console.log("==> received push for commit " + e.commit)
-  
+    console.log("My DB password is " + project.secrets.dbPassword)
+
     // setup variables
-    var acrServer = "briarprivate.azurecr.io"
-    var acrUsername = "briarprivate"
-    var acrPassword = "x/ZaYBV2x3RRidBnPLgGH4gRXGJkBFHo"
+    var acrServer = project.secrets.acrServer
+    var acrUsername = project.secrets.acrUsername
+    var acrPassword = project.secrets.acrPassword
     var apiImage = "chzbrgr71/smackapi"
     var gitSHA = "a01be2b"
     var imageTag = `PR-${gitSHA}`
@@ -51,7 +52,5 @@ events.on("push", function(e, project) {
     pipeline.add(docker)
     pipeline.add(helm)
     pipeline.runEach()
-
-    console.log("==> complete")
 
   })
