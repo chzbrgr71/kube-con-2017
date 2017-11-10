@@ -11,7 +11,7 @@ events.on("push", function(e, project) {
     var imageTag = "btr123"
     var gitSHA = "212828"
     var apiACRImage = "${acrServer}/${apiImage}:${imageTag}"
-    console.log("==> docker image for ACR is ${apiACRImage}")
+    console.log("==> docker image for ACR is " + apiACRImage)
 
     // define job for golang work
     var golang = new Job("job-runner-golang")
@@ -31,7 +31,8 @@ events.on("push", function(e, project) {
     docker.privileged = true
     docker.tasks = [
         "cd /src/smackapi/",
-        "docker login ${acrServer} -u ${acrUsername} -p ${acrPassword}",
+        "cat Dockerfile"
+        //"docker login ${acrServer} -u ${acrUsername} -p ${acrPassword}",
         //"docker build --build-arg BUILD_DATE='1/1/2017 5:00' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${gitSHA} -t ${apiImage} .",
         //"docker tag ${apiImage} ${apiACRImage}",
         //"docker push ${apiACRImage}"
