@@ -2,7 +2,6 @@ const { events, Job, Group } = require('brigadier')
 
 events.on("push", function(e, project) {
     console.log("==> received push for commit " + e.commit)
-    console.log("My DB password is " + project.secrets.dbPassword)
 
     // setup variables
     var acrServer = project.secrets.acrServer
