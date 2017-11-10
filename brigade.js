@@ -8,8 +8,8 @@ events.on("push", function(e, project) {
     var acrUsername = "briarprivate"
     var acrPassword = "x/ZaYBV2x3RRidBnPLgGH4gRXGJkBFHo"
     var apiImage = "chzbrgr71/smackapi"
-    var imageTag = "btr123"
-    var gitSHA = "212828"
+    var gitSHA = "a01be2b"
+    var imageTag = `PR-${gitSHA}`
     var apiACRImage = `${acrServer}/${apiImage}:${imageTag}`
     console.log(`==> docker image for ACR is ${apiACRImage}`)
 
@@ -30,25 +30,26 @@ events.on("push", function(e, project) {
     docker.image = "docker:17.06.0"
     docker.privileged = true
     docker.tasks = [
-        "cd /src/smackapi/",
-        "cat Dockerfile"
+        "cd /src/smackapi/"
         //"docker login ${acrServer} -u ${acrUsername} -p ${acrPassword}",
         //"docker build --build-arg BUILD_DATE='1/1/2017 5:00' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${gitSHA} -t ${apiImage} .",
         //"docker tag ${apiImage} ${apiACRImage}",
         //"docker push ${apiACRImage}"
     ]
-
+    
     // define job for k8s/helm work
-    var kubectl = new Job("job-runner-helm")
-    kubectl.storage.enabled = false
-    kubectl.image = "lachlanevenson/k8s-helm:v2.5.0"
-    kubectl.tasks = [
-        "helm init"
+    var helm = new Job("job-runner-helm")
+    helm.storage.enabled = false
+    helm.image = "lachlanevenson/k8s-helm:2.7.0"
+    helm.tasks = [
+        "helm init",
+        "helm version"
     ]
 
     var pipeline = new Group()
     pipeline.add(golang)
     pipeline.add(docker)
+    pipeline.add(helm)
     pipeline.runEach()
 
     console.log("==> complete")
