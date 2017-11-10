@@ -8,7 +8,7 @@ sharedSecret: "Your@Password"
 # You probably want this if you want pull requests or commits to show
 # the build status.
 github:
-  token: "7d698b2d3cfb4383d111264cc9dbb59aa05d737d"
+  token: "95b0000a309259ce846f697ba48315a4bbd22780"
 secrets:
   acrServer: briarprivate.azurecr.io
   acrUsername: briarprivate
