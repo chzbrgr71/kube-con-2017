@@ -9,8 +9,8 @@ events.on("push", function(e, project) {
     var acrPassword = project.secrets.acrPassword
     var apiImage = "chzbrgr71/smackapi"
     //var gitSHA = "a01be2b"
-    var gitSHA = event.commit
-    var eventType = event.type
+    var gitSHA = e.commit
+    var eventType = e.type
     var imageTag = `${eventType}-${gitSHA}`
     var apiACRImage = `${acrServer}/${apiImage}:${imageTag}`
     console.log(`==> docker image for ACR is ${apiACRImage}`)
