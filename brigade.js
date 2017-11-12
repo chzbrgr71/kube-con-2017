@@ -56,6 +56,7 @@ events.on("push", function(e, project) {
         "helm version"
     ]
 
+    console.log("==> starting pipeline steps")
     var pipeline = new Group()
     pipeline.add(golang)
     pipeline.add(docker)
