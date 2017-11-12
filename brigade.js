@@ -32,7 +32,6 @@ events.on("push", function(e, project) {
     // define job for docker work
     var docker = new Job("job-runner-docker")
     docker.storage.enabled = false
-    // docker.image = "docker:edge-dind"
     docker.image = "chzbrgr71/dnd:v5"
     docker.privileged = true
     docker.tasks = [
@@ -49,12 +48,11 @@ events.on("push", function(e, project) {
     ]
     
     // define job for k8s/helm work
-    var helm = new Job("job-runner-helm")
+    var helm = new Job("job-runner-istio")
     helm.storage.enabled = false
-    helm.image = "lachlanevenson/k8s-helm:2.7.0"
+    helm.image = "chzbrgr71/istioctl"
     helm.tasks = [
-        "helm init",
-        "helm version"
+        "istioctl version",
     ]
 
     console.log("==> starting pipeline steps")
