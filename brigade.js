@@ -41,6 +41,7 @@ events.on("push", function(e, project) {
 
     const dind = new Job("dind", "docker:edge-dind")
     dind.privileged = true
+    dind.storage.enabled = false
     dind.tasks = [
       "dockerd-entrypoint.sh &",
       "echo waiting && sleep 20",
