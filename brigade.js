@@ -11,7 +11,7 @@ events.on("push", function(e, project) {
     var gitSHA = e.commit.substr(0,7)
     var eventType = e.type
     if (eventType === "push") {
-        var imageTag = `master-${gitSHA}`
+        var imageTag = `prod-${gitSHA}`
     } else {
         var imageTag = `${eventType}-${gitSHA}`
     }
@@ -31,17 +31,16 @@ events.on("push", function(e, project) {
     
     // define job for docker work
     var docker = new Job("job-runner-docker")
-    //var docker = new Job("job-runner-docker")
     docker.storage.enabled = false
-    docker.image = "docker:edge-dind"
+    // docker.image = "docker:edge-dind"
+    docker.image = "chzbrgr7/dnd"
     docker.privileged = true
     docker.tasks = [
         "dockerd-entrypoint.sh &",
         "echo waiting && sleep 20",
         "cd /src/smackapi/",
         `docker login ${acrServer} -u ${acrUsername} -p ${acrPassword}`,
-        "pwd",
-        "ls -la",
+        "GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackapi",
         `docker build --build-arg BUILD_DATE='1/1/2017 5:00' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${gitSHA} -t ${apiImage} .`,
         `docker tag ${apiImage} ${apiACRImage}`,
         `docker push ${apiACRImage}`,
