@@ -8,7 +8,6 @@ events.on("push", function(e, project) {
     var acrUsername = project.secrets.acrUsername
     var acrPassword = project.secrets.acrPassword
     var apiImage = "chzbrgr71/smackapi"
-    //var gitSHA = "a01be2b"
     var gitSHA = e.commit.substr(0,7)
     var eventType = e.type
     if (eventType === "push") {
@@ -41,6 +40,8 @@ events.on("push", function(e, project) {
         "echo waiting && sleep 20",
         "cd /src/smackapi/",
         `docker login ${acrServer} -u ${acrUsername} -p ${acrPassword}`,
+        "pwd",
+        "ls -la"
         `docker build --build-arg BUILD_DATE='1/1/2017 5:00' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${gitSHA} -t ${apiImage} .`,
         `docker tag ${apiImage} ${apiACRImage}`,
         `docker push ${apiACRImage}`,
