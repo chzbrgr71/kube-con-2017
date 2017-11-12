@@ -9,9 +9,13 @@ events.on("push", function(e, project) {
     var acrPassword = project.secrets.acrPassword
     var apiImage = "chzbrgr71/smackapi"
     //var gitSHA = "a01be2b"
-    var gitSHA = e.commit
+    var gitSHA = e.commit.substr(0,7)
     var eventType = e.type
-    var imageTag = `${eventType}-${gitSHA}`
+    if (eventType === "push") {
+        var imageTag = `master-${gitSHA}`
+    } else {
+        var imageTag = `${eventType}-${gitSHA}`
+    }
     var apiACRImage = `${acrServer}/${apiImage}:${imageTag}`
     console.log(`==> docker image for ACR is ${apiACRImage}`)
 
@@ -28,31 +32,20 @@ events.on("push", function(e, project) {
     
     // define job for docker work
     var docker = new Job("job-runner-docker")
+    //var docker = new Job("job-runner-docker")
     docker.storage.enabled = false
-    docker.image = "docker:17.06.0"
+    docker.image = "docker:edge-dind"
     docker.privileged = true
     docker.tasks = [
+        "dockerd-entrypoint.sh &",
+        "echo waiting && sleep 20",
         "cd /src/smackapi/"
-        //"docker login ${acrServer} -u ${acrUsername} -p ${acrPassword}",
-        //"docker build --build-arg BUILD_DATE='1/1/2017 5:00' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${gitSHA} -t ${apiImage} .",
-        //"docker tag ${apiImage} ${apiACRImage}",
-        //"docker push ${apiACRImage}"
+        `docker login ${acrServer} -u ${acrUsername} -p ${acrPassword}`,
+        `docker build --build-arg BUILD_DATE='1/1/2017 5:00' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${gitSHA} -t ${apiImage} .`,
+        `docker tag ${apiImage} ${apiACRImage}`,
+        `docker push ${apiACRImage}`,
+        "killall dockerd"
     ]
-
-    const dind = new Job("dind", "docker:edge-dind")
-    dind.privileged = true
-    dind.storage.enabled = false
-    dind.tasks = [
-      "dockerd-entrypoint.sh &",
-      "echo waiting && sleep 20",
-      "ps -ef",
-      "docker version",
-      `docker login ${acrServer} -u ${acrUsername} -p ${acrPassword}`,
-      "killall dockerd"
-    ]
-    dind.run().then( () => {
-      console.log("==== DONE ====")
-    })
     
     // define job for k8s/helm work
     var helm = new Job("job-runner-helm")
@@ -67,6 +60,6 @@ events.on("push", function(e, project) {
     pipeline.add(golang)
     pipeline.add(docker)
     pipeline.add(helm)
-    //pipeline.runEach()
+    pipeline.runEach()
 
   })
