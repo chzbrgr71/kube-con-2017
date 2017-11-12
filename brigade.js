@@ -32,7 +32,7 @@ events.on("push", function(e, project) {
     // define job for docker work
     var docker = new Job("job-runner-docker")
     docker.storage.enabled = false
-    // docker.image = "docker:edge-dind"
+    //  docker.image = "docker:edge-dind"
     docker.image = "chzbrgr71/dnd"
     docker.privileged = true
     docker.tasks = [
