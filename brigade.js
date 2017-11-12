@@ -40,6 +40,7 @@ events.on("push", function(e, project) {
         "echo waiting && sleep 20",
         "cd /src/smackapi/",
         `docker login ${acrServer} -u ${acrUsername} -p ${acrPassword}`,
+        "go get github.com/gorilla/mux",
         "GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackapi",
         `docker build --build-arg BUILD_DATE='1/1/2017 5:00' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${gitSHA} -t ${apiImage} .`,
         `docker tag ${apiImage} ${apiACRImage}`,
