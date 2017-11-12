@@ -38,6 +38,20 @@ events.on("push", function(e, project) {
         //"docker tag ${apiImage} ${apiACRImage}",
         //"docker push ${apiACRImage}"
     ]
+
+    const dind = new Job("dind", "docker:edge-dind")
+    dind.privileged = true
+    dind.tasks = [
+      "dockerd-entrypoint.sh &",
+      "echo waiting && sleep 20",
+      "ps -ef",
+      "docker version",
+      `docker login ${acrServer} -u ${acrUsername} -p ${acrPassword}`,
+      "killall dockerd"
+    ]
+    dind.run().then( () => {
+      console.log("==== DONE ====")
+    })
     
     // define job for k8s/helm work
     var helm = new Job("job-runner-helm")
@@ -52,6 +66,6 @@ events.on("push", function(e, project) {
     pipeline.add(golang)
     pipeline.add(docker)
     pipeline.add(helm)
-    pipeline.runEach()
+    //pipeline.runEach()
 
   })
