@@ -50,7 +50,7 @@ events.on("push", function(e, project) {
     // define job for k8s/helm work
     var helm = new Job("job-runner-istio")
     helm.storage.enabled = false
-    helm.image = "ibmcom/istioctl"
+    helm.image = "ibmcom/istioctl:1.6.0"
     helm.tasks = [
         "istioctl version",
     ]
