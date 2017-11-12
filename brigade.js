@@ -39,7 +39,7 @@ events.on("push", function(e, project) {
     docker.tasks = [
         "dockerd-entrypoint.sh &",
         "echo waiting && sleep 20",
-        "cd /src/smackapi/"
+        "cd /src/smackapi/",
         `docker login ${acrServer} -u ${acrUsername} -p ${acrPassword}`,
         `docker build --build-arg BUILD_DATE='1/1/2017 5:00' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${gitSHA} -t ${apiImage} .`,
         `docker tag ${apiImage} ${apiACRImage}`,
