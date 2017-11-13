@@ -1,6 +1,6 @@
 # Default values for chart
 
 api:
-  replicas: 3
+  replicas: 5
   image: "briarprivate.azurecr.io/chzbrgr71/smackapi"
   imageTag: "master-62ddb4f"

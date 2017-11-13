@@ -30,7 +30,7 @@ spec:
         image: briarprivate.azurecr.io/chzbrgr71/smackweb:master-c399f02
         env:
         - name: API_SERVICE
-          value: "smackapi.default.svc.cluster.local"
+          value: "smackapi.microsmack.svc.cluster.local"
         - name: API_PORT
           value: "8081"
         - name: KUBE_NODE_NAME
