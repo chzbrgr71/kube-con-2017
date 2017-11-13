@@ -52,8 +52,6 @@ events.on("push", function(e, project) {
     helm.storage.enabled = false
     helm.image = "lachlanevenson/k8s-helm:2.7.0"
     helm.tasks = [
-        "kubectl version",
-        "kubectl get pod -n microsmack",
         "helm version",
         "helm ls"
     ]
