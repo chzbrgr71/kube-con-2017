@@ -48,19 +48,21 @@ events.on("push", function(e, project) {
     ]
     
     // define job for k8s/helm work
-    var kubectl = new Job("job-runner-kubectl")
-    kubectl.storage.enabled = false
-    kubectl.image = "lachlanevenson/k8s-kubectl:v1.7.9"
-    kubectl.tasks = [
+    var helm = new Job("job-runner-helm")
+    helm.storage.enabled = false
+    helm.image = "llachlanevenson/k8s-helm:v2.7.0"
+    helm.tasks = [
         "kubectl version",
-        "kubectl get node"
+        "kubectl get pod -n microsmack",
+        "helm version",
+        "helm ls"
     ]
 
     console.log("==> starting pipeline steps N'at ")
     var pipeline = new Group()
     pipeline.add(golang)
     pipeline.add(docker)
-    pipeline.add(kubectl)
+    pipeline.add(helm)
     pipeline.runEach()
 
   })
