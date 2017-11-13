@@ -50,7 +50,7 @@ events.on("push", function(e, project) {
     // define job for k8s/helm work
     var helm = new Job("job-runner-helm")
     helm.storage.enabled = false
-    helm.image = "llachlanevenson/k8s-helm:v2.7.0"
+    helm.image = "llachlanevenson/k8s-helm:2.7.0"
     helm.tasks = [
         "kubectl version",
         "kubectl get pod -n microsmack",
