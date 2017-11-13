@@ -56,7 +56,7 @@ events.on("push", function(e, project) {
         "kubectl get node"
     ]
 
-    console.log("==> starting pipeline steps n'at ")
+    console.log("==> starting pipeline steps N'at ")
     var pipeline = new Group()
     pipeline.add(golang)
     pipeline.add(docker)
