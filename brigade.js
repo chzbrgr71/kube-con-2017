@@ -53,7 +53,8 @@ events.on("push", function(e, project) {
     helm.image = "lachlanevenson/k8s-helm:2.7.0"
     helm.tasks = [
         "helm version",
-        "helm ls"
+        "helm ls",
+        `helm upgrade --install smackapi-newer ./charts/smackapi --namespace microsmack --set api.image=briarprivate.azurecr.io/chzbrgr71/smackapi --set api.imageTag=${imageTag} --set api.deployment=smackapi-newer --set api.versionLabel=newer`
     ]
 
     console.log("==> starting pipeline steps N'at ")

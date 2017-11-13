@@ -1,14 +1,14 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: smackapi-v1
+  name: "{{.Values.api.deployment}}"
 spec:
-  replicas: {{ default 1 .Values.api.replicas }}
+  replicas: {{ default 3 .Values.api.replicas }}
   template:
     metadata:
       labels:
         app: smackapi
-        version: v1
+        version: "{{.Values.api.versionLabel}}"
     spec:
       containers:
       - name: smackapi

@@ -1,6 +1,8 @@
 # Default values for chart
 
 api:
-  replicas: 5
+  deployment: smackapi-prod
+  versionLabel: prod
+  replicas: 3
   image: "briarprivate.azurecr.io/chzbrgr71/smackapi"
   imageTag: "master-62ddb4f"
