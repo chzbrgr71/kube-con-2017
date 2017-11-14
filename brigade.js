@@ -55,8 +55,8 @@ events.on("push", function(e, project) {
         "cd /src/",
         "helm version",
         "helm ls",
-        `helm upgrade --install smackapi-new ./charts/smackapi --namespace microsmack --set api.imageTag=${imageTag}`,
-        "helm upgrade --install microsmack-routes ./charts/routes --namespace microsmack --set prodLabel=prod --set prodWeight=10 --set canaryLabel=new --set canaryWeight=90"
+        `helm upgrade smackapi-new ./charts/smackapi --namespace microsmack --set api.imageTag=${imageTag}`,
+        "helm upgrade microsmack-routes ./charts/routes --namespace microsmack --set prodLabel=prod --set prodWeight=10 --set canaryLabel=new --set canaryWeight=90"
     ]
 
     console.log("==> starting pipeline steps N'at ")
