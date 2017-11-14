@@ -1,0 +1,14 @@
+apiVersion: config.istio.io/v1alpha2
+kind: RouteRule
+metadata:
+  name: smackapi
+spec:
+  destination:
+    name: smackapi
+  route:
+  - labels:
+      version: "{{.Values.prodLabel}}"
+    weight: {{.Values.prodWeight}}
+  - labels:
+      version: "{{.Values.canaryLabel}}"
+    weight: {{.Values.canaryWeight}}

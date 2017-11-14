@@ -1,0 +1,7 @@
+name: microsmack-routes
+home: https://github.com/chzbrgr71/kube-con-2017
+version: 1.0
+description: Istio route rules for microsmack k8s demo
+maintainers: 
+  - name: chzbrgr71
+    email: brianisrunning@gmail.com

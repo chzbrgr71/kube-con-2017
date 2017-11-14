@@ -10,5 +10,5 @@ spec:
       version: new
     weight: 50
   - labels:
-      version: prod
+      version: newer
     weight: 50

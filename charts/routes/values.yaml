@@ -1,0 +1,5 @@
+# Default values for chart
+prodLabel: prod
+prodWeight: 50
+canaryLabel: new
+canaryWeight: 50
