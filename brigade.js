@@ -15,8 +15,8 @@ events.on("push", function(e, project) {
     } else {
         var imageTag = `${eventType}-${gitSHA}`
     }
-    var apiACRImage = `${acrServer}/${apiImage}:${imageTag}`
-    console.log(`==> docker image for ACR is ${apiACRImage}`)
+    var apiACRImage = `${acrServer}/${apiImage}`
+    console.log(`==> docker image for ACR is ${apiACRImage}:${imageTag}`)
 
     // define job for golang work
     var golang = new Job("job-runner-golang")
@@ -42,8 +42,8 @@ events.on("push", function(e, project) {
         "go get github.com/gorilla/mux",
         "GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackapi",
         `docker build --build-arg BUILD_DATE='1/1/2017 5:00' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${gitSHA} -t ${apiImage} .`,
-        `docker tag ${apiImage} ${apiACRImage}`,
-        `docker push ${apiACRImage}`,
+        `docker tag ${apiImage} ${apiACRImage}:${imageTag}`,
+        `docker push ${apiACRImage}:${imageTag}`,
         "killall dockerd"
     ]
     
@@ -54,12 +54,11 @@ events.on("push", function(e, project) {
     helm.tasks = [
         "cd /src/",
         "helm version",
-        "helm ls",
-        `helm upgrade smackapi-new ./charts/smackapi --namespace microsmack --set api.imageTag=${imageTag}`,
-        "helm upgrade microsmack-routes ./charts/routes --namespace microsmack --set prodLabel=prod --set prodWeight=10 --set canaryLabel=new --set canaryWeight=90"
+        `helm upgrade --install smackapi-new ./charts/smackapi --namespace microsmack --set api.image=${apiACRImage} --set api.imageTag=${imageTag} --set api.deployment=smackapi-new --set api.versionLabel=new`,
+        `helm upgrade --install microsmack-routes ./charts/routes --namespace microsmack --set prodLabel=prod --set prodWeight=10 --set canaryLabel=new --set canaryWeight=90`
     ]
 
-    console.log("==> starting pipeline steps N'at ")
+    console.log("==> starting pipeline steps")
     var pipeline = new Group()
     pipeline.add(golang)
     pipeline.add(docker)
