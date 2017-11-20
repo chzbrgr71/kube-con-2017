@@ -1,7 +1,7 @@
 const { events, Job, Group } = require('brigadier')
 
 events.on("push", (brigadeEvent, project) => {
-    console.log("==> received push for commit " + e.commit)
+    console.log("==> received push for commit " + brigadeEvent.commit)
     
         // setup variables
         var acrServer = project.secrets.acrServer
