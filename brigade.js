@@ -1,7 +1,27 @@
 const { events, Job, Group } = require('brigadier')
 
-events.on("pull_request", function(e, project) {
+events.on("push", function(e, project) {
     console.log("==> received push for commit " + e.commit)
+
+    // setup variables
+    var acrServer = project.secrets.acrServer
+    var acrUsername = project.secrets.acrUsername
+    var acrPassword = project.secrets.acrPassword
+    var apiImage = "chzbrgr71/smackapi"
+    var gitSHA = e.commit.substr(0,7)
+    var eventType = e.type
+    if (eventType === "push") {
+        var imageTag = `prod-${gitSHA}`
+    } else {
+        var imageTag = `${eventType}-${gitSHA}`
+    }
+    var apiACRImage = `${acrServer}/${apiImage}`
+    console.log(`==> docker image for ACR is ${apiACRImage}:${imageTag}`)
+
+
+},
+events.on("pull_request", function(e, project) {
+    console.log("==> received pull request for commit " + e.commit)
 
     // setup variables
     var acrServer = project.secrets.acrServer
