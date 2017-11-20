@@ -17,8 +17,6 @@ events.on("push", (brigadeEvent, project) => {
     }
     var apiACRImage = `${acrServer}/${apiImage}`
     var gitPayload = JSON.parse(brigadeEvent.payload)
-    
-    //if (payload.ref == "refs/heads/master") {
     console.log(`==> Github payload branch reference: ${gitPayload.ref}`)
     console.log(`==> docker image for ACR is ${apiACRImage}:${imageTag}`)
 
@@ -67,7 +65,9 @@ events.on("push", (brigadeEvent, project) => {
     pipeline2.add(golang2)
     pipeline2.add(docker2)
     pipeline2.add(helm2)
-    pipeline2.runEach()
+    if (gitPayload.ref == "refs/heads/master") {
+        pipeline2.runEach()
+    }
     
 })
 
