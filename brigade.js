@@ -16,6 +16,8 @@ events.on("push", (brigadeEvent, project) => {
         var imageTag = `${eventType}-${gitSHA}`
     }
     var apiACRImage = `${acrServer}/${apiImage}`
+    var gitPayload = brigadeEvent.payload
+    console.log(`==> Github payload: ${gitPayload}`)
     console.log(`==> docker image for ACR is ${apiACRImage}:${imageTag}`)
 
     // define job for golang work
