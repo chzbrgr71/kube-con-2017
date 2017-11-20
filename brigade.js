@@ -18,17 +18,17 @@ events.on("push", (brigadeEvent, project) => {
     var apiACRImage = `${acrServer}/${apiImage}`
     console.log(`==> docker image for ACR is ${apiACRImage}:${imageTag}`)
     console.log("==> starting pipeline steps")
-    var pipeline = new Group()
-    pipeline.add(golang)
-    pipeline.add(docker)
-    pipeline.add(helm)
-    pipeline.runEach()
+    var pipeline2 = new Group()
+    pipeline2.add(golang2)
+    pipeline2.add(docker2)
+    pipeline2.add(helm2)
+    pipeline2.runEach()
 
     // define job for golang work
-    var golang = new Job("job-runner-golang")
-    golang.storage.enabled = false
-    golang.image = "golang:1.7.5"
-    golang.tasks = [
+    var golang2 = new Job("job-runner-golang")
+    golang2.storage.enabled = false
+    golang2.image = "golang:1.7.5"
+    golang2.tasks = [
         "cd /src/",
         "go get github.com/gorilla/mux",
         "cd smackapi && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackapi",
@@ -36,11 +36,11 @@ events.on("push", (brigadeEvent, project) => {
     ]
 
     // define job for docker work
-    var docker = new Job("job-runner-docker")
-    docker.storage.enabled = false
-    docker.image = "chzbrgr71/dnd:v5"
-    docker.privileged = true
-    docker.tasks = [
+    var docker2 = new Job("job-runner-docker")
+    docker2.storage.enabled = false
+    docker2.image = "chzbrgr71/dnd:v5"
+    docker2.privileged = true
+    docker2.tasks = [
         "dockerd-entrypoint.sh &",
         "echo waiting && sleep 20",
         "cd /src/smackapi/",
@@ -54,10 +54,10 @@ events.on("push", (brigadeEvent, project) => {
     ]
 
     // define job for k8s/helm work
-    var helm = new Job("job-runner-helm")
-    helm.storage.enabled = false
-    helm.image = "lachlanevenson/k8s-helm:2.7.0"
-    helm.tasks = [
+    var helm2 = new Job("job-runner-helm")
+    helm2.storage.enabled = false
+    helm2.image = "lachlanevenson/k8s-helm:2.7.0"
+    helm2.tasks = [
         "cd /src/",
         "helm version",
         `helm upgrade --install smackapi-prod ./charts/smackapi --namespace microsmack --set api.image=${apiACRImage} --set api.imageTag=${imageTag} --set api.deployment=smackapi-prod --set api.versionLabel=prod`,
