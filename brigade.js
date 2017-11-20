@@ -17,12 +17,6 @@ events.on("push", (brigadeEvent, project) => {
     }
     var apiACRImage = `${acrServer}/${apiImage}`
     console.log(`==> docker image for ACR is ${apiACRImage}:${imageTag}`)
-    console.log("==> starting pipeline steps")
-    var pipeline2 = new Group()
-    pipeline2.add(golang2)
-    pipeline2.add(docker2)
-    pipeline2.add(helm2)
-    pipeline2.runEach()
 
     // define job for golang work
     var golang2 = new Job("job-runner-golang")
@@ -63,6 +57,14 @@ events.on("push", (brigadeEvent, project) => {
         `helm upgrade --install smackapi-prod ./charts/smackapi --namespace microsmack --set api.image=${apiACRImage} --set api.imageTag=${imageTag} --set api.deployment=smackapi-prod --set api.versionLabel=prod`,
         `helm upgrade --install microsmack-routes ./charts/routes --namespace microsmack --set prodLabel=prod --set prodWeight=100 --set canaryLabel=new --set canaryWeight=0`
     ]
+
+    console.log("==> starting pipeline steps")
+    var pipeline2 = new Group()
+    pipeline2.add(golang2)
+    pipeline2.add(docker2)
+    pipeline2.add(helm2)
+    pipeline2.runEach()
+    
 })
 
 events.on("pull_request", (e, project) => {
