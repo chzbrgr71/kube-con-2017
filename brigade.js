@@ -65,7 +65,7 @@ events.on("push", (brigadeEvent, project) => {
     ]
 })
 
-events.on("push", (e, project) => {
+events.on("pull_request", (e, project) => {
     console.log("==> received pull request for commit " + e.commit)
 
     // setup variables
