@@ -21,9 +21,11 @@ events.on("push", (brigadeEvent, project) => {
     var golang = new Job("job-runner-golang")
     var docker = new Job("job-runner-docker")
     var helm = new Job("job-runner-helm")
+    var slack = new Job("slack-notify", "technosophos/slack-notify:latest", ["/slack-notify"])
     goJobRunner(golang)
     dockerJobRunner(brigConfig, docker)
     helmJobRunner(brigConfig, helm, 100, 0, "prod")
+    slackJob(slack, project.secrets.slackWebhook, `brigade pipeline complete for ${brigConfig.get("branch")} with commit ID ${brigConfig.get("gitSHA")}`)
 
     // start pipeline
     console.log(`==> starting pipeline for docker image: ${brigConfig.get("apiACRImage")}:${brigConfig.get("imageTag")}`)
@@ -31,6 +33,7 @@ events.on("push", (brigadeEvent, project) => {
     pipeline.add(golang)
     pipeline.add(docker)
     pipeline.add(helm)
+    pipeline.add(slack)
     if (brigConfig.get("branch") == "master") {
         pipeline.runEach()
     } else {
@@ -110,6 +113,17 @@ function helmJobRunner (config, h, prodWeight, canaryWeight, deployType) {
         `helm upgrade --install smackapi-${deployType} ./charts/smackapi --namespace microsmack --set api.image=${config.get("apiACRImage")} --set api.imageTag=${config.get("imageTag")} --set api.deployment=smackapi-${deployType} --set api.versionLabel=${deployType}`,
         `helm upgrade --install microsmack-routes ./charts/routes --namespace microsmack --set prodLabel=prod --set prodWeight=${prodWeight} --set canaryLabel=new --set canaryWeight=${canaryWeight}`
     ]
+}
+
+function slackJob (s, webhook, message) {
+    s.storage.enabled = false
+    s.env = {
+      SLACK_WEBHOOK: webhook,
+      SLACK_USERNAME: "brigade",
+      SLACK_TITLE: "Kubecon 2017",
+      SLACK_MESSAGE: message,
+      SLACK_COLOR: "#0000ff"
+    }
 }
 
 function getBranch (p) {
