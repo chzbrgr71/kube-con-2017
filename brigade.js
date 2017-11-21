@@ -23,7 +23,7 @@ events.on("push", (brigadeEvent, project) => {
     var helm = new Job("job-runner-helm")
     goJobRunner(golang)
     dockerJobRunner(brigConfig, docker)
-    helmJobRunner(brigConfig, helm, 50, 50)
+    helmJobRunner(brigConfig, helm, 100, 0)
 
     // start pipeline
     console.log(`==> starting pipeline for docker image: ${brigConfig.get("apiACRImage")}:${brigConfig.get("imageTag")}`)
