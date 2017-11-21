@@ -28,7 +28,7 @@ events.on("push", (brigadeEvent, project) => {
 
     var pipeline = new Group()
     pipeline.add(golang)
-    //pipeline.add(docker)
+    pipeline.add(docker)
     //pipeline2.add(helm)
     if (brigConfig.get("branch") == "master") {
         pipeline.runEach()
