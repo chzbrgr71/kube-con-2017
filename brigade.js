@@ -130,7 +130,7 @@ events.on("pull_request", (e, project) => {
 
 function getBranch (p) {
     if (p.ref) {
-        return ref.substring(11)
+        return p.ref.substring(11)
     } else {
         return "PR"
     }
