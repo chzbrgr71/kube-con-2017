@@ -38,7 +38,7 @@ events.on("push", (brigadeEvent, project) => {
     }  
 })
 
-events.on("pull_request", (e, project) => {
+events.on("pull_request", (brigadeEvent, project) => {
 
     // setup variables
     var gitPayload = JSON.parse(brigadeEvent.payload)
