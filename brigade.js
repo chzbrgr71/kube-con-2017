@@ -1,7 +1,6 @@
 const { events, Job, Group } = require('brigadier')
 
 events.on("push", (brigadeEvent, project) => {
-    console.log("==> received push for commit " + brigadeEvent.commit)
     
     // setup variables
     var acrServer = project.secrets.acrServer
@@ -17,7 +16,9 @@ events.on("push", (brigadeEvent, project) => {
     }
     var apiACRImage = `${acrServer}/${apiImage}`
     var gitPayload = JSON.parse(brigadeEvent.payload)
-    console.log(`==> docker image for ACR is ${apiACRImage}:${imageTag}`)
+    
+    console.log(`==> GitHub webook (${gitPayload.ref}) with commit ID ${brigadeEvent.commit}`)
+    console.log(`==> Docker image for ACR is ${apiACRImage}:${imageTag}`)
 
     // define job for golang work
     var golang2 = new Job("job-runner-golang")
