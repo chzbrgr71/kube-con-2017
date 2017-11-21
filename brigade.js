@@ -23,7 +23,7 @@ events.on("push", (brigadeEvent, project) => {
     var docker = new Job("job-runner-docker")
     //var helm = new Job("job-runner-helm")
     goJobRunner(golang)
-    dockerJobRunner(docker)
+    dockerJobRunner(brigConfig, docker)
     //helmJobRunner(helm)
 
     var pipeline = new Group()
