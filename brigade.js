@@ -61,7 +61,7 @@ events.on("pull_request", (e, project) => {
     var helm = new Job("job-runner-helm")
     goJobRunner(golang)
     dockerJobRunner(brigConfig, docker)
-    helmJobRunner(brigConfig, helm, 100, 0, "new")
+    helmJobRunner(brigConfig, helm, 10, 90, "new")
 
     // start pipeline
     console.log(`==> starting pipeline for docker image: ${brigConfig.get("apiACRImage")}:${brigConfig.get("imageTag")}`)
@@ -71,14 +71,6 @@ events.on("pull_request", (e, project) => {
     pipeline.add(helm)
     pipeline.runEach()
 })
-
-function getBranch (p) {
-    if (p.ref) {
-        return p.ref.substring(11)
-    } else {
-        return "PR"
-    }
-}
 
 function goJobRunner(g) {
     // define job for golang work
@@ -118,4 +110,12 @@ function helmJobRunner (config, h, prodWeight, canaryWeight, deployType) {
         `helm upgrade --install smackapi-${deployType} ./charts/smackapi --namespace microsmack --set api.image=${config.get("apiACRImage")} --set api.imageTag=${config.get("imageTag")} --set api.deployment=smackapi-${deployType} --set api.versionLabel=${deployType}`,
         `helm upgrade --install microsmack-routes ./charts/routes --namespace microsmack --set prodLabel=prod --set prodWeight=${prodWeight} --set canaryLabel=new --set canaryWeight=${canaryWeight}`
     ]
+}
+
+function getBranch (p) {
+    if (p.ref) {
+        return p.ref.substring(11)
+    } else {
+        return "PR"
+    }
 }
