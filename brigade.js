@@ -4,7 +4,7 @@ events.on("push", (brigadeEvent, project) => {
     
     // setup variables
     var brigConfig = new Map()
-    brigConfig.set(acrServer, project.secrets.acrServer)
+    brigConfig.set("acrServer", project.secrets.acrServer)
     //var acrServer = project.secrets.acrServer
     var acrUsername = project.secrets.acrUsername
     var acrPassword = project.secrets.acrPassword
@@ -15,7 +15,7 @@ events.on("push", (brigadeEvent, project) => {
     var branch = getBranch(gitPayload)
     var imageTag = `${branch}-${gitSHA}`
     //var apiACRImage = `${acrServer}/${apiImage}`
-    var apiACRImage = `${brigConfig.get(acrServer)}/${apiImage}`
+    var apiACRImage = `${brigConfig.get("acrServer")}/${apiImage}`
     
     console.log(`==> GitHub webook (${branch}) with commit ID ${gitSHA}`)
     console.log(`==> starting pipeline for docker image: ${apiACRImage}:${imageTag}`)
