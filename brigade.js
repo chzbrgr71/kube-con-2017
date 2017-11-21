@@ -15,27 +15,27 @@ events.on("push", (brigadeEvent, project) => {
     brigConfig.set("imageTag", `${brigConfig.get("branch")}-${brigConfig.get("gitSHA")}`)
     brigConfig.set("apiACRImage", `${brigConfig.get("acrServer")}/${brigConfig.get("apiImage")}`)
     
-    console.log(`==> GitHub webook (${brigConfig.get("branch")}) with commit ID ${brigConfig.get("gitSHA")}`)
-    console.log(`==> starting pipeline for docker image: ${brigConfig.get("apiACRImage")}:${brigConfig.get("imageTag")}`)
+    console.log(`==> gitHub webook (${brigConfig.get("branch")}) with commit ID ${brigConfig.get("gitSHA")}`)
     
     // setup brigade jobs
     var golang = new Job("job-runner-golang")
     var docker = new Job("job-runner-docker")
-    //var helm = new Job("job-runner-helm")
+    var helm = new Job("job-runner-helm")
     goJobRunner(golang)
     dockerJobRunner(brigConfig, docker)
-    //helmJobRunner(brigConfig, helm)
+    helmJobRunner(brigConfig, helm, 50, 50)
 
+    // start pipeline
+    console.log(`==> starting pipeline for docker image: ${brigConfig.get("apiACRImage")}:${brigConfig.get("imageTag")}`)
     var pipeline = new Group()
     pipeline.add(golang)
     pipeline.add(docker)
-    //pipeline.add(helm)
+    pipeline.add(helm)
     if (brigConfig.get("branch") == "master") {
         pipeline.runEach()
     } else {
         console.log(`==> no jobs to run when not master`)
-    }
-    
+    }  
 })
 
 events.on("pull_request", (e, project) => {
@@ -143,13 +143,12 @@ function dockerJobRunner(config, d) {
     ]
 }
 
-function helmJobRunner (h) {
+function helmJobRunner (config, h, prodWeight, canaryWeight) {
     h.storage.enabled = false
     h.image = "lachlanevenson/k8s-helm:2.7.0"
     h.tasks = [
         "cd /src/",
-        "helm version",
-        `helm upgrade --install smackapi-prod ./charts/smackapi --namespace microsmack --set api.image=${apiACRImage} --set api.imageTag=${imageTag} --set api.deployment=smackapi-prod --set api.versionLabel=prod`,
-        `helm upgrade --install microsmack-routes ./charts/routes --namespace microsmack --set prodLabel=prod --set prodWeight=100 --set canaryLabel=new --set canaryWeight=0`
+        `helm upgrade --install smackapi-prod ./charts/smackapi --namespace microsmack --set api.image=${config.get("apiACRImage")} --set api.imageTag=${config.get("imageTag")} --set api.deployment=smackapi-prod --set api.versionLabel=prod`,
+        `helm upgrade --install microsmack-routes ./charts/routes --namespace microsmack --set prodLabel=prod --set prodWeight=${prodWeight} --set canaryLabel=new --set canaryWeight=${canaryWeight}`
     ]
 }
