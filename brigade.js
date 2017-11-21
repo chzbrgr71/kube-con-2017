@@ -3,7 +3,9 @@ const { events, Job, Group } = require('brigadier')
 events.on("push", (brigadeEvent, project) => {
     
     // setup variables
-    var acrServer = project.secrets.acrServer
+    var brigConfig = new Map()
+    brigConfig.set(acrServer, project.secrets.acrServer)
+    //var acrServer = project.secrets.acrServer
     var acrUsername = project.secrets.acrUsername
     var acrPassword = project.secrets.acrPassword
     var apiImage = "chzbrgr71/smackapi"
@@ -12,51 +14,28 @@ events.on("push", (brigadeEvent, project) => {
     var gitPayload = JSON.parse(brigadeEvent.payload)
     var branch = getBranch(gitPayload)
     var imageTag = `${branch}-${gitSHA}`
-    var apiACRImage = `${acrServer}/${apiImage}`
+    //var apiACRImage = `${acrServer}/${apiImage}`
+    var apiACRImage = `${brigConfig.get(acrServer)}/${apiImage}`
     
     console.log(`==> GitHub webook (${branch}) with commit ID ${gitSHA}`)
-    console.log(`==> Docker image for ACR is ${apiACRImage}:${imageTag}`)
+    console.log(`==> starting pipeline for docker image: ${apiACRImage}:${imageTag}`)
 
     // setup brigade jobs
     var golang = new Job("job-runner-golang")
+    //var docker = new Job("job-runner-docker")
+    //var helm = new Job("job-runner-helm")
     goJobRunner(golang)
+    //dockerJobRunner(docker)
+    //helmJobRunner(helm)
 
-    // define job for docker work
-    var docker2 = new Job("job-runner-docker")
-    docker2.storage.enabled = false
-    docker2.image = "chzbrgr71/dnd:v5"
-    docker2.privileged = true
-    docker2.tasks = [
-        "dockerd-entrypoint.sh &",
-        "echo waiting && sleep 20",
-        "cd /src/smackapi/",
-        `docker login ${acrServer} -u ${acrUsername} -p ${acrPassword}`,
-        "go get github.com/gorilla/mux",
-        "GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackapi",
-        `docker build --build-arg BUILD_DATE='1/1/2017 5:00' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${gitSHA} -t ${apiImage} .`,
-        `docker tag ${apiImage} ${apiACRImage}:${imageTag}`,
-        `docker push ${apiACRImage}:${imageTag}`,
-        "killall dockerd"
-    ]
-
-    // define job for k8s/helm work
-    var helm2 = new Job("job-runner-helm")
-    helm2.storage.enabled = false
-    helm2.image = "lachlanevenson/k8s-helm:2.7.0"
-    helm2.tasks = [
-        "cd /src/",
-        "helm version",
-        `helm upgrade --install smackapi-prod ./charts/smackapi --namespace microsmack --set api.image=${apiACRImage} --set api.imageTag=${imageTag} --set api.deployment=smackapi-prod --set api.versionLabel=prod`,
-        `helm upgrade --install microsmack-routes ./charts/routes --namespace microsmack --set prodLabel=prod --set prodWeight=100 --set canaryLabel=new --set canaryWeight=0`
-    ]
-
-    console.log("==> starting pipeline steps")
-    var pipeline2 = new Group()
-    pipeline2.add(golang)
-    //pipeline2.add(docker2)
-    //pipeline2.add(helm2)
-    if (gitPayload.ref == "refs/heads/master") {
-        pipeline2.runEach()
+    var pipeline = new Group()
+    pipeline.add(golang)
+    //pipeline.add(docker)
+    //pipeline2.add(helm)
+    if (branch == "master") {
+        pipeline.runEach()
+    } else {
+        console.log(`==> no jobs to run when not master`)
     }
     
 })
@@ -145,5 +124,34 @@ function goJobRunner(g) {
         "go get github.com/gorilla/mux",
         "cd smackapi && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackapi",
         "go test -v"
+    ]
+}
+
+function dockerJobRunner(d) {
+    d.storage.enabled = false
+    d.image = "chzbrgr71/dnd:v5"
+    d.privileged = true
+    d.tasks = [
+        "dockerd-entrypoint.sh &",
+        "echo waiting && sleep 20",
+        "cd /src/smackapi/",
+        `docker login ${acrServer} -u ${acrUsername} -p ${acrPassword}`,
+        "go get github.com/gorilla/mux",
+        "GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackapi",
+        `docker build --build-arg BUILD_DATE='1/1/2017 5:00' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${gitSHA} -t ${apiImage} .`,
+        `docker tag ${apiImage} ${apiACRImage}:${imageTag}`,
+        `docker push ${apiACRImage}:${imageTag}`,
+        "killall dockerd"
+    ]
+}
+
+function helmJobRunner (h) {
+    h.storage.enabled = false
+    h.image = "lachlanevenson/k8s-helm:2.7.0"
+    h.tasks = [
+        "cd /src/",
+        "helm version",
+        `helm upgrade --install smackapi-prod ./charts/smackapi --namespace microsmack --set api.image=${apiACRImage} --set api.imageTag=${imageTag} --set api.deployment=smackapi-prod --set api.versionLabel=prod`,
+        `helm upgrade --install microsmack-routes ./charts/routes --namespace microsmack --set prodLabel=prod --set prodWeight=100 --set canaryLabel=new --set canaryWeight=0`
     ]
 }
