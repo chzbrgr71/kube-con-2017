@@ -6,8 +6,8 @@ events.on("push", (brigadeEvent, project) => {
     var gitPayload = JSON.parse(brigadeEvent.payload)
     var brigConfig = new Map()
     brigConfig.set("acrServer", project.secrets.acrServer)
-    brigConfig.set("acrUsername", project.secrets.acrServer)
-    brigConfig.set("acrPassword", project.secrets.acrServer)
+    brigConfig.set("acrUsername", project.secrets.acrUsername)
+    brigConfig.set("acrPassword", project.secrets.acrPassword)
     brigConfig.set("apiImage", "chzbrgr71/smackapi")
     brigConfig.set("gitSHA", brigadeEvent.commit.substr(0,7))
     brigConfig.set("eventType", brigadeEvent.type)
@@ -17,19 +17,19 @@ events.on("push", (brigadeEvent, project) => {
     
     console.log(`==> GitHub webook (${brigConfig.get("branch")}) with commit ID ${brigConfig.get("gitSHA")}`)
     console.log(`==> starting pipeline for docker image: ${brigConfig.get("apiACRImage")}:${brigConfig.get("imageTag")}`)
-
+    
     // setup brigade jobs
     var golang = new Job("job-runner-golang")
     var docker = new Job("job-runner-docker")
     //var helm = new Job("job-runner-helm")
     goJobRunner(golang)
     dockerJobRunner(brigConfig, docker)
-    //helmJobRunner(helm)
+    //helmJobRunner(brigConfig, helm)
 
     var pipeline = new Group()
     pipeline.add(golang)
     pipeline.add(docker)
-    //pipeline2.add(helm)
+    //pipeline.add(helm)
     if (brigConfig.get("branch") == "master") {
         pipeline.runEach()
     } else {
