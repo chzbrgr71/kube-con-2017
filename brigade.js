@@ -53,7 +53,7 @@ events.on("push", (brigadeEvent, project) => {
 
     console.log("==> starting pipeline steps")
     var pipeline2 = new Group()
-    pipeline2.add(golang2)
+    pipeline2.add(golang)
     pipeline2.add(docker2)
     pipeline2.add(helm2)
     if (gitPayload.ref == "refs/heads/master") {
