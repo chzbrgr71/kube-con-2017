@@ -9,17 +9,15 @@ events.on("push", (brigadeEvent, project) => {
     var apiImage = "chzbrgr71/smackapi"
     var gitSHA = brigadeEvent.commit.substr(0,7)
     var eventType = brigadeEvent.type
-    if (eventType === "push") {
-        var imageTag = `prod-${gitSHA}`
-    } else {
-        var imageTag = `${eventType}-${gitSHA}`
-    }
-    var apiACRImage = `${acrServer}/${apiImage}`
     var gitPayload = JSON.parse(brigadeEvent.payload)
+    var branch = getBranch(gitPayload)
+    var imageTag = `${branch}-${gitSHA}`
+    var apiACRImage = `${acrServer}/${apiImage}`
     
-    console.log(`==> GitHub webook (${gitPayload.ref}) with commit ID ${brigadeEvent.commit}`)
+    console.log(`==> GitHub webook (${branch}) with commit ID ${gitSHA}`)
     console.log(`==> Docker image for ACR is ${apiACRImage}:${imageTag}`)
 
+    // setup brigade jobs
     var golang = new Job("job-runner-golang")
     goJobRunner(golang)
 
@@ -55,8 +53,8 @@ events.on("push", (brigadeEvent, project) => {
     console.log("==> starting pipeline steps")
     var pipeline2 = new Group()
     pipeline2.add(golang)
-    pipeline2.add(docker2)
-    pipeline2.add(helm2)
+    //pipeline2.add(docker2)
+    //pipeline2.add(helm2)
     if (gitPayload.ref == "refs/heads/master") {
         pipeline2.runEach()
     }
@@ -129,6 +127,16 @@ events.on("pull_request", (e, project) => {
     pipeline.runEach()
 
 })
+
+function getBranch (p) {
+    //refs/heads/master
+    var ref = gitPayload.ref
+    if (ref) {
+        return ref.substring(11)
+    } else {
+        return "PR"
+    }
+}
 
 function goJobRunner(g) {
     // define job for golang work
