@@ -40,7 +40,7 @@ events.on("push", (brigadeEvent, project) => {
     pipeline.add(golang)
     //pipeline.add(docker)
     //pipeline2.add(helm)
-    if (branch == "master") {
+    if (brigConfig.get("branch") == "master") {
         pipeline.runEach()
     } else {
         console.log(`==> no jobs to run when not master`)
