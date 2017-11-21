@@ -129,9 +129,7 @@ events.on("pull_request", (e, project) => {
 })
 
 function getBranch (p) {
-    //refs/heads/master
-    var ref = gitPayload.ref
-    if (ref) {
+    if (p.ref) {
         return ref.substring(11)
     } else {
         return "PR"
