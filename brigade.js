@@ -2,7 +2,7 @@ const { events, Job, Group } = require('brigadier')
 
 events.on("push", (brigadeEvent, project) => {
     
-    // setup variables
+    // setup variables in map
     var gitPayload = JSON.parse(brigadeEvent.payload)
     var brigConfig = new Map()
     brigConfig.set("acrServer", project.secrets.acrServer)
@@ -14,26 +14,16 @@ events.on("push", (brigadeEvent, project) => {
     brigConfig.set("branch", getBranch(gitPayload))
     brigConfig.set("imageTag", `${brigConfig.get("branch")}-${brigConfig.get("gitSHA")}`)
     brigConfig.set("apiACRImage", `${brigConfig.get("acrServer")}/${brigConfig.get("apiImage")}`)
-    //var acrServer = project.secrets.acrServer
-    //var acrUsername = project.secrets.acrUsername
-    //var acrPassword = project.secrets.acrPassword
-    //var apiImage = "chzbrgr71/smackapi"
-    //var gitSHA = brigadeEvent.commit.substr(0,7)
-    //var eventType = brigadeEvent.type
-    //var branch = getBranch(gitPayload)
-    //var imageTag = `${brigConfig.get("branch")}-${brigConfig.get("gitSHA")}`
-    //var apiACRImage = `${acrServer}/${apiImage}`
-    //var apiACRImage = `${brigConfig.get("acrServer")}/${brigConfig.get("apiImage")}`
     
     console.log(`==> GitHub webook (${brigConfig.get("branch")}) with commit ID ${brigConfig.get("gitSHA")}`)
     console.log(`==> starting pipeline for docker image: ${brigConfig.get("apiACRImage")}:${brigConfig.get("imageTag")}`)
 
     // setup brigade jobs
     var golang = new Job("job-runner-golang")
-    //var docker = new Job("job-runner-docker")
+    var docker = new Job("job-runner-docker")
     //var helm = new Job("job-runner-helm")
     goJobRunner(golang)
-    //dockerJobRunner(docker)
+    dockerJobRunner(docker)
     //helmJobRunner(helm)
 
     var pipeline = new Group()
@@ -135,7 +125,7 @@ function goJobRunner(g) {
     ]
 }
 
-function dockerJobRunner(d) {
+function dockerJobRunner(config, d) {
     d.storage.enabled = false
     d.image = "chzbrgr71/dnd:v5"
     d.privileged = true
@@ -143,12 +133,12 @@ function dockerJobRunner(d) {
         "dockerd-entrypoint.sh &",
         "echo waiting && sleep 20",
         "cd /src/smackapi/",
-        `docker login ${acrServer} -u ${acrUsername} -p ${acrPassword}`,
+        `docker login ${config.get("acrServer")} -u ${config.get("acrUsername")} -p ${config.get("acrPassword")}`,
         "go get github.com/gorilla/mux",
         "GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackapi",
-        `docker build --build-arg BUILD_DATE='1/1/2017 5:00' --build-arg IMAGE_TAG_REF=${imageTag} --build-arg VCS_REF=${gitSHA} -t ${apiImage} .`,
-        `docker tag ${apiImage} ${apiACRImage}:${imageTag}`,
-        `docker push ${apiACRImage}:${imageTag}`,
+        `docker build --build-arg BUILD_DATE='1/1/2017 5:00' --build-arg IMAGE_TAG_REF=${config.get("imageTag")} --build-arg VCS_REF=${config.get("gitSHA")} -t ${config.get("apiImage")} .`,
+        `docker tag ${config.get("apiImage")} ${config.get("apiACRImage")}:${config.get("imageTag")}`,
+        `docker push ${config.get("apiACRImage")}:${config.get("imageTag")}`,
         "killall dockerd"
     ]
 }
