@@ -20,7 +20,8 @@ events.on("push", (brigadeEvent, project) => {
     console.log(`==> GitHub webook (${gitPayload.ref}) with commit ID ${brigadeEvent.commit}`)
     console.log(`==> Docker image for ACR is ${apiACRImage}:${imageTag}`)
 
-    goJobRunner()
+    var golang = new Job("job-runner-golang")
+    goJobRunner(golang)
 
     // define job for docker work
     var docker2 = new Job("job-runner-docker")
@@ -129,12 +130,11 @@ events.on("pull_request", (e, project) => {
 
 })
 
-function goJobRunner() {
+function goJobRunner(g) {
     // define job for golang work
-    var golang = new Job("job-runner-golang")
-    golang.storage.enabled = false
-    golang.image = "golang:1.7.5"
-    golang.tasks = [
+    g.storage.enabled = false
+    g.image = "golang:1.7.5"
+    g.tasks = [
         "cd /src/",
         "go get github.com/gorilla/mux",
         "cd smackapi && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackapi",
