@@ -3,22 +3,30 @@ const { events, Job, Group } = require('brigadier')
 events.on("push", (brigadeEvent, project) => {
     
     // setup variables
+    var gitPayload = JSON.parse(brigadeEvent.payload)
     var brigConfig = new Map()
     brigConfig.set("acrServer", project.secrets.acrServer)
+    brigConfig.set("acrUsername", project.secrets.acrServer)
+    brigConfig.set("acrPassword", project.secrets.acrServer)
+    brigConfig.set("apiImage", "chzbrgr71/smackapi")
+    brigConfig.set("gitSHA", brigadeEvent.commit.substr(0,7))
+    brigConfig.set("eventType", brigadeEvent.type)
+    brigConfig.set("branch", getBranch(gitPayload))
+    brigConfig.set("imageTag", `${brigConfig.get("branch")}-${brigConfig.get("gitSHA")}`)
+    brigConfig.set("apiACRImage", `${brigConfig.get("acrServer")}/${brigConfig.get("apiImage")}`)
     //var acrServer = project.secrets.acrServer
-    var acrUsername = project.secrets.acrUsername
-    var acrPassword = project.secrets.acrPassword
-    var apiImage = "chzbrgr71/smackapi"
-    var gitSHA = brigadeEvent.commit.substr(0,7)
-    var eventType = brigadeEvent.type
-    var gitPayload = JSON.parse(brigadeEvent.payload)
-    var branch = getBranch(gitPayload)
-    var imageTag = `${branch}-${gitSHA}`
+    //var acrUsername = project.secrets.acrUsername
+    //var acrPassword = project.secrets.acrPassword
+    //var apiImage = "chzbrgr71/smackapi"
+    //var gitSHA = brigadeEvent.commit.substr(0,7)
+    //var eventType = brigadeEvent.type
+    //var branch = getBranch(gitPayload)
+    //var imageTag = `${brigConfig.get("branch")}-${brigConfig.get("gitSHA")}`
     //var apiACRImage = `${acrServer}/${apiImage}`
-    var apiACRImage = `${brigConfig.get("acrServer")}/${apiImage}`
+    //var apiACRImage = `${brigConfig.get("acrServer")}/${brigConfig.get("apiImage")}`
     
-    console.log(`==> GitHub webook (${branch}) with commit ID ${gitSHA}`)
-    console.log(`==> starting pipeline for docker image: ${apiACRImage}:${imageTag}`)
+    console.log(`==> GitHub webook (${brigConfig.get("branch")}) with commit ID ${brigConfig.get("gitSHA")}`)
+    console.log(`==> starting pipeline for docker image: ${brigConfig.get("apiACRImage")}:${brigConfig.get("imageTag")}`)
 
     // setup brigade jobs
     var golang = new Job("job-runner-golang")
