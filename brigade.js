@@ -25,7 +25,7 @@ events.on("push", (brigadeEvent, project) => {
     goJobRunner(golang)
     dockerJobRunner(brigConfig, docker)
     helmJobRunner(brigConfig, helm, 100, 0, "prod")
-    slackJob(slack, project.secrets.slackWebhook, `brigade pipeline complete for ${brigConfig.get("branch")} with commit ID ${brigConfig.get("gitSHA")}. Please review analytics.`)
+    slackJob(slack, project.secrets.slackWebhook, `brigade pipeline complete for ${brigConfig.get("branch")} with commit ID ${brigConfig.get("gitSHA")}. Canary testing removed via istio rules.`)
 
     // start pipeline
     console.log(`==> starting pipeline for docker image: ${brigConfig.get("apiACRImage")}:${brigConfig.get("imageTag")}`)
@@ -68,9 +68,11 @@ events.on("pull_request", (brigadeEvent, project) => {
     var golang = new Job("job-runner-golang")
     var docker = new Job("job-runner-docker")
     var helm = new Job("job-runner-helm")
+    var slack = new Job("slack-notify", "technosophos/slack-notify:latest", ["/slack-notify"])
     goJobRunner(golang)
     dockerJobRunner(brigConfig, docker)
     helmJobRunner(brigConfig, helm, 10, 90, "new")
+    slackJob(slack, project.secrets.slackWebhook, `brigade pipeline complete for ${brigConfig.get("branch")} with commit ID ${brigConfig.get("gitSHA")}. Canaty testing in place via Istio. Please review analytics.`)
 
     // start pipeline
     console.log(`==> starting pipeline for docker image: ${brigConfig.get("apiACRImage")}:${brigConfig.get("imageTag")}`)
@@ -78,6 +80,7 @@ events.on("pull_request", (brigadeEvent, project) => {
     pipeline.add(golang)
     pipeline.add(docker)
     pipeline.add(helm)
+    pipeline.add(slack)
     pipeline.runEach()
 })
 
