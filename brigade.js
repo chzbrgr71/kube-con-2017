@@ -120,7 +120,7 @@ function slackJob (s, webhook, message) {
     s.env = {
       SLACK_WEBHOOK: webhook,
       SLACK_USERNAME: "brigade",
-      SLACK_TITLE: "Kubecon 2017",
+      //SLACK_TITLE: "Kubecon 2017",
       SLACK_MESSAGE: message,
       SLACK_COLOR: "#0000ff"
     }
