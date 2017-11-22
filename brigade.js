@@ -25,15 +25,15 @@ events.on("push", (brigadeEvent, project) => {
     goJobRunner(golang)
     dockerJobRunner(brigConfig, docker)
     helmJobRunner(brigConfig, helm, 100, 0, "prod")
-    slackJob(slack, project.secrets.slackWebhook, `brigade pipeline complete for ${brigConfig.get("branch")} with commit ID ${brigConfig.get("gitSHA")}. Canary testing removed via istio rules.`)
+    slackJob(slack, project.secrets.slackWebhook, `brigade pipeline starting for ${brigConfig.get("branch")} with commit ID ${brigConfig.get("gitSHA")}. \nCanary testing removed via istio rules.`)
 
     // start pipeline
     console.log(`==> starting pipeline for docker image: ${brigConfig.get("apiACRImage")}:${brigConfig.get("imageTag")}`)
     var pipeline = new Group()
+    pipeline.add(slack)
     pipeline.add(golang)
     pipeline.add(docker)
     pipeline.add(helm)
-    pipeline.add(slack)
     if (brigConfig.get("branch") == "master") {
         pipeline.runEach()
     } else {
@@ -41,20 +41,7 @@ events.on("push", (brigadeEvent, project) => {
     }  
 })
 
-events.on("after", (event, proj) => {
-    console.log("brigade pipeline finished successfully")
 
-    var slack = new Job("slack-notify", "technosophos/slack-notify:latest", ["/slack-notify"])
-    slack.storage.enabled = false
-    slack.env = {
-      SLACK_WEBHOOK: proj.secrets.slackWebhook,
-      SLACK_USERNAME: "brigade @ kubecon",
-      SLACK_MESSAGE: "*brigade pipeline finished successfully*",
-      SLACK_COLOR: "#ff0000"
-    }
-	slack.run()
-    
-})
 
 events.on("pull_request", (brigadeEvent, project) => {
 
@@ -81,16 +68,31 @@ events.on("pull_request", (brigadeEvent, project) => {
     goJobRunner(golang)
     dockerJobRunner(brigConfig, docker)
     helmJobRunner(brigConfig, helm, 10, 90, "new")
-    slackJob(slack, project.secrets.slackWebhook, `brigade pipeline complete for ${brigConfig.get("branch")} with commit ID ${brigConfig.get("gitSHA")}. Canaty testing in place via Istio. Please review analytics.`)
+    slackJob(slack, project.secrets.slackWebhook, `brigade pipeline starting for ${brigConfig.get("branch")} with commit ID ${brigConfig.get("gitSHA")}. Canaty testing in place via Istio. Please review analytics.`)
 
     // start pipeline
     console.log(`==> starting pipeline for docker image: ${brigConfig.get("apiACRImage")}:${brigConfig.get("imageTag")}`)
     var pipeline = new Group()
+    pipeline.add(slack)
     pipeline.add(golang)
     pipeline.add(docker)
     pipeline.add(helm)
-    pipeline.add(slack)
     pipeline.runEach()
+})
+
+events.on("after", (event, proj) => {
+    console.log("brigade pipeline finished successfully")
+
+    var slack = new Job("slack-notify", "technosophos/slack-notify:latest", ["/slack-notify"])
+    slack.storage.enabled = false
+    slack.env = {
+      SLACK_WEBHOOK: proj.secrets.slackWebhook,
+      SLACK_USERNAME: "brigade @ kubecon",
+      SLACK_MESSAGE: "brigade pipeline finished successfully",
+      SLACK_COLOR: "#ff0000"
+    }
+	slack.run()
+    
 })
 
 function goJobRunner(g) {
