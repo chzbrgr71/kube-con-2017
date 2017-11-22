@@ -44,7 +44,7 @@ events.on("push", (brigadeEvent, project) => {
 events.on("after", (project) => {
     //var slack = new Job("slack-notify", "technosophos/slack-notify:latest", ["/slack-notify"])
     //slackJob(slack, project.secrets.slackWebhook, `brigade pipeline finished successfully`)
-    console.log(project.secrets.acrServer + "brigade pipeline finished successfully")
+    console.log("brigade pipeline finished successfully")
 })
 
 events.on("pull_request", (brigadeEvent, project) => {
