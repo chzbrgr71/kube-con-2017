@@ -25,7 +25,7 @@ events.on("push", (brigadeEvent, project) => {
     goJobRunner(golang)
     dockerJobRunner(brigConfig, docker)
     helmJobRunner(brigConfig, helm, 100, 0, "prod")
-    slackJob(slack, project.secrets.slackWebhook, `brigade pipeline starting for ${brigConfig.get("branch")} with commit ID ${brigConfig.get("gitSHA")}. \nCanary testing removed via istio rules.`)
+    slackJob(slack, project.secrets.slackWebhook, `brigade pipeline starting for ${brigConfig.get("branch")} with commit ID ${brigConfig.get("gitSHA")}. \nremoving canary test via istio rules.`)
 
     // start pipeline
     console.log(`==> starting pipeline for docker image: ${brigConfig.get("apiACRImage")}:${brigConfig.get("imageTag")}`)
@@ -40,8 +40,6 @@ events.on("push", (brigadeEvent, project) => {
         console.log(`==> no jobs to run when not master`)
     }  
 })
-
-
 
 events.on("pull_request", (brigadeEvent, project) => {
 
@@ -68,7 +66,7 @@ events.on("pull_request", (brigadeEvent, project) => {
     goJobRunner(golang)
     dockerJobRunner(brigConfig, docker)
     helmJobRunner(brigConfig, helm, 10, 90, "new")
-    slackJob(slack, project.secrets.slackWebhook, `brigade pipeline starting for ${brigConfig.get("branch")} with commit ID ${brigConfig.get("gitSHA")}. Canaty testing in place via Istio. Please review analytics.`)
+    slackJob(slack, project.secrets.slackWebhook, `brigade pipeline starting for ${brigConfig.get("branch")} with commit ID ${brigConfig.get("gitSHA")}\ncanary testing starting via istio\nplease review analytics`)
 
     // start pipeline
     console.log(`==> starting pipeline for docker image: ${brigConfig.get("apiACRImage")}:${brigConfig.get("imageTag")}`)
@@ -140,7 +138,6 @@ function slackJob (s, webhook, message) {
     s.env = {
       SLACK_WEBHOOK: webhook,
       SLACK_USERNAME: "brigade @ kubecon",
-      //SLACK_TITLE: "Kubecon 2017",
       SLACK_MESSAGE: message,
       SLACK_COLOR: "#0000ff"
     }
