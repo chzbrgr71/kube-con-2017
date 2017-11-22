@@ -25,20 +25,25 @@ events.on("push", (brigadeEvent, project) => {
     goJobRunner(golang)
     dockerJobRunner(brigConfig, docker)
     helmJobRunner(brigConfig, helm, 100, 0, "prod")
-    slackJob(slack, project.secrets.slackWebhook, `brigade pipeline complete for ${brigConfig.get("branch")} with commit ID ${brigConfig.get("gitSHA")}`)
+    slackJob(slack, project.secrets.slackWebhook, `brigade pipeline starting for ${brigConfig.get("branch")} with commit ID ${brigConfig.get("gitSHA")}`)
 
     // start pipeline
     console.log(`==> starting pipeline for docker image: ${brigConfig.get("apiACRImage")}:${brigConfig.get("imageTag")}`)
     var pipeline = new Group()
+    pipeline.add(slack)
     pipeline.add(golang)
     pipeline.add(docker)
     pipeline.add(helm)
-    pipeline.add(slack)
     if (brigConfig.get("branch") == "master") {
         pipeline.runEach()
     } else {
         console.log(`==> no jobs to run when not master`)
     }  
+})
+
+events.on("after", (project) => {
+    var slack = new Job("slack-notify", "technosophos/slack-notify:latest", ["/slack-notify"])
+    slackJob(slack, project.secrets.slackWebhook, `brigade pipeline finished successfully`)
 })
 
 events.on("pull_request", (brigadeEvent, project) => {
@@ -119,7 +124,7 @@ function slackJob (s, webhook, message) {
     s.storage.enabled = false
     s.env = {
       SLACK_WEBHOOK: webhook,
-      SLACK_USERNAME: "brigade",
+      SLACK_USERNAME: "brigade @ kubecon",
       //SLACK_TITLE: "Kubecon 2017",
       SLACK_MESSAGE: message,
       SLACK_COLOR: "#0000ff"
