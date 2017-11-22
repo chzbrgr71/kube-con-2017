@@ -41,10 +41,19 @@ events.on("push", (brigadeEvent, project) => {
     }  
 })
 
-events.on("after", (project) => {
-    //var slack = new Job("slack-notify", "technosophos/slack-notify:latest", ["/slack-notify"])
-    //slackJob(slack, project.secrets.slackWebhook, `brigade pipeline finished successfully`)
+events.on("after", (event, proj) => {
     console.log("brigade pipeline finished successfully")
+
+    var slack = new Job("slack-notify", "technosophos/slack-notify:latest", ["/slack-notify"])
+    slack.storage.enabled = false
+    slack.env = {
+      SLACK_WEBHOOK: proj.secrets.slackWebhook,
+      SLACK_USERNAME: "brigade @ kubecon",
+      SLACK_MESSAGE: "*brigade pipeline finished successfully*",
+      SLACK_COLOR: "#ff0000"
+    }
+	slack.run()
+    
 })
 
 events.on("pull_request", (brigadeEvent, project) => {
