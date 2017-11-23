@@ -37,7 +37,7 @@ events.on("push", (brigadeEvent, project) => {
     if (brigConfig.get("branch") == "master") {
         pipeline.runEach()
     } else {
-        console.log(`==> no jobs to run when not on master`)
+        console.log(`==> no jobs to run when not master`)
     }  
 })
 
