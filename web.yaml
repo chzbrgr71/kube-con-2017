@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: smackweb
-        image: briarprivate.azurecr.io/chzbrgr71/smackweb:master-c399f02
+        image: chzbrgr71/smackweb
         env:
         - name: API_SERVICE
           value: "smackapi.microsmack.svc.cluster.local"
@@ -51,5 +51,3 @@ spec:
         imagePullPolicy: IfNotPresent #Always
         ports:
         - containerPort: 8080
-      imagePullSecrets:
-      - name: acrregistrykey
