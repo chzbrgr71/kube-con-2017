@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: smackweb
-        image: briarprivate.azurecr.io/chzbrgr71/smackweb:backup
+        image: chzbrgr71/smackweb
         env:
         - name: API_SERVICE
           value: "smackapi.microsmack.svc.cluster.local"
