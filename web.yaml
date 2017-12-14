@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: smackweb
-        image: chzbrgr71/smackweb
+        image: chzbrgr71/smackweb:kubecon
         env:
         - name: API_SERVICE
           value: "smackapi.microsmack.svc.cluster.local"

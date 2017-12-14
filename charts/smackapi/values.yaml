@@ -4,5 +4,5 @@ api:
   deployment: smackapi-prod
   versionLabel: prod
   replicas: 3
-  image: "briarprivate.azurecr.io/chzbrgr71/smackapi"
+  image: "chzbrgr71/smackapi:kubecon"
   imageTag: "master-62ddb4f"
